@@ -1,8 +1,11 @@
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
-  const { signin } = useAuth();
+  const { signinWebAuthn, signin } = useAuth();
 
+  const onSigninWebAuthn = () => {
+    signinWebAuthn("eric", () => {});
+  };
   const onSignin = () => {
     signin("eric", () => {});
   };
@@ -26,7 +29,7 @@ export default function LoginPage() {
             <form className="space-y-6" action="#" method="POST">
               <div>
                 <button
-                  onClick={onSignin}
+                  onClick={onSigninWebAuthn}
                   type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
@@ -88,7 +91,8 @@ export default function LoginPage() {
 
               <div>
                 <button
-                  type="submit"
+                  onClick={onSignin}
+                  type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   Sign in

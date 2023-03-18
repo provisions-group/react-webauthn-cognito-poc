@@ -1,8 +1,13 @@
 import React from "react";
+import {
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
 import { fakeAuthProvider } from "../auth";
 
 export interface AuthContextType {
   user: any;
+  signinWebAuthn: (user: string, callback: VoidFunction) => void;
   signin: (user: string, callback: VoidFunction) => void;
   signout: (callback: VoidFunction) => void;
 }
@@ -12,6 +17,21 @@ const AuthContext = React.createContext<AuthContextType>(null!);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
 
+  const signinWebAuthn = (newUser: string, callback: VoidFunction) => {
+    // TODO: add webauthn. guide: https://simplewebauthn.dev/docs/packages/browser
+
+    // if first time
+    // startRegistration();
+    // startAuthentication();
+
+    // if return user
+    // startAuthentication();
+
+    return fakeAuthProvider.signin(() => {
+      setUser(newUser);
+      callback();
+    });
+  };
   const signin = (newUser: string, callback: VoidFunction) => {
     return fakeAuthProvider.signin(() => {
       setUser(newUser);
@@ -26,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const value = { user, signin, signout };
+  const value = { user, signinWebAuthn, signin, signout };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
