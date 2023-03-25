@@ -3,7 +3,12 @@ import {
   startAuthentication,
   startRegistration,
 } from "@simplewebauthn/browser";
+
 import { fakeAuthProvider } from "../auth";
+import { Amplify, Auth } from "aws-amplify";
+import { AwsConfigAuth } from "../auth.config";
+
+Amplify.configure({ Auth: AwsConfigAuth });
 
 export interface AuthContextType {
   user: any;
@@ -32,7 +37,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       callback();
     });
   };
+
   const signin = (newUser: string, callback: VoidFunction) => {
+    // Auth.signIn();
     return fakeAuthProvider.signin(() => {
       setUser(newUser);
       callback();
