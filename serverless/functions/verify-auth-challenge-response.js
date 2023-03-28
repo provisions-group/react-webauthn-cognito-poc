@@ -84,8 +84,6 @@ function parseDevices(devicesString) {
 async function adminUpdateUserAttributes(userPoolId, username, devices) {
   const client = new CognitoIdentityProviderClient({ region: "us-east-2" });
 
-  //  UserLambdaValidationException: VerifyAuthChallengeResponse failed with error User: arn:aws:sts::298821895416:assumed-role/passwordless-otp-cognito-demo-dev-us-east-2-lambdaRole/passwordless-otp-cognito-demo-dev-verifyAuthChallengeResponse is not authorized to perform: cognito-idp:AdminUpdateUserAttributes on resource: arn:aws:cognito-idp:us-east-2:298821895416:userpool/us-east-2_56O5hbcfY because no identity-based policy allows the cognito-idp:AdminUpdateUserAttributes action.
-
   const input = {
     // AdminUpdateUserAttributesRequest
     UserPoolId: userPoolId, // required

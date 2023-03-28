@@ -34,6 +34,14 @@ functions:
 
   verifyAuthChallengeResponse:
     handler: functions/verify-auth-challenge-response.handler
+    iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
+    iamRoleStatements:
+      - Effect: Allow
+        Action: cognito-idp:AdminUpdateUserAttributes
+        # You will need to paste in the correct resource arn after it is created
+        Resource: arn:aws:cognito-idp:us-east-2:298821895416:userpool/us-east-2_56O5hbcfY
+        # Causes circular reference
+        # Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${PasswordlessOtpUserPool.Arn}
 
 resources:
   Resources:
