@@ -30,7 +30,7 @@ async function signUp() {
       username: email.value,
       password,
     });
-    console.log(signInResult.user);
+    console.log(signInResult);
 
     isSignedUp.value = true;
   } catch (error) {
