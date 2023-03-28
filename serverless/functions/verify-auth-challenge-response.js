@@ -14,8 +14,7 @@ module.exports.handler = async (event) => {
   // VerifiedRegistrationResponse;
   let verification;
 
-  const expectedAnswer =
-    event?.request?.privateChallengeParameters?.secretLoginCode;
+  const expectedAnswer = event?.request?.privateChallengeParameters?.challenge;
 
   const port = 5173;
 
@@ -67,10 +66,9 @@ module.exports.handler = async (event) => {
       await adminUpdateUserAttributes(event.userPoolId, event.userName, [
         newDevice,
       ]);
-
-      // user.devices.push(newDevice);
     }
   }
+
   return event;
 };
 

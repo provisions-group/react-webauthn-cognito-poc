@@ -2,12 +2,6 @@ const _ = require("lodash");
 const { generateRegistrationOptions } = require("@simplewebauthn/server");
 const Chance = require("chance");
 const chance = new Chance();
-const SES = require("aws-sdk/clients/sesv2");
-// const {
-//   AdminGetUserCommand,
-//   CognitoIdentityProviderClient,
-// } = require("aws-sdk/client-cognito-identity-provider");
-const ses = new SES();
 const { MAX_ATTEMPTS } = require("../lib/constants");
 
 const { SES_FROM_ADDRESS } = process.env;
@@ -70,7 +64,7 @@ module.exports.handler = async (event) => {
   // verify step and is not exposed to the caller
   // need to pass the secret code along so we can verify the user's answer
   event.response.privateChallengeParameters = {
-    secretLoginCode: options.challenge,
+    challenge: options.challenge,
   };
 
   // TODO: remove this if possible
@@ -78,17 +72,6 @@ module.exports.handler = async (event) => {
 
   return event;
 };
-
-// async function adminGetUser({ userPoolId, username }) {
-//   const client = createClientForDefaultRegion(CognitoIdentityProviderClient);
-
-//   const command = new AdminGetUserCommand({
-//     UserPoolId: userPoolId,
-//     Username: username,
-//   });
-
-//   return client.send(command);
-// }
 
 async function generateDeviceRegistrationOptions(username, userAttributes) {
   const devices = parseDevices(userAttributes["custom:devices"]);
@@ -128,34 +111,4 @@ function parseDevices(devicesString) {
   if (!devicesString) return [];
 
   return JSON.parse(devicesString);
-}
-
-async function sendEmail(emailAddress, otpCode) {
-  await ses
-    .sendEmail({
-      Destination: {
-        ToAddresses: [emailAddress],
-      },
-      FromEmailAddress: SES_FROM_ADDRESS,
-      Content: {
-        Simple: {
-          Subject: {
-            Charset: "UTF-8",
-            Data: "Your one-time login code",
-          },
-          Body: {
-            Html: {
-              Charset: "UTF-8",
-              Data: `<html><body><p>This is your one-time login code:</p>
-                  <h3>${otpCode}</h3></body></html>`,
-            },
-            Text: {
-              Charset: "UTF-8",
-              Data: `Your one-time login code: ${otpCode}`,
-            },
-          },
-        },
-      },
-    })
-    .promise();
 }

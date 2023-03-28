@@ -23,14 +23,6 @@ functions:
 
   createAuthChallenge:
     handler: functions/create-auth-challenge.handler
-    environment:
-      SES_FROM_ADDRESS: noreply@${self:custom.domain}
-    iamRoleStatements:
-      - Effect: Allow
-        Action: ses:SendEmail
-        Resource:
-          - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/${self:custom.domain}
-          - !Sub arn:aws:ses:${AWS::Region}:${AWS::AccountId}:configuration-set/*
 
   verifyAuthChallengeResponse:
     handler: functions/verify-auth-challenge-response.handler
