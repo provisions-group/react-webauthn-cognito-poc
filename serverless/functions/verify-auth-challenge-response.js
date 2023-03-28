@@ -1,7 +1,11 @@
 const { verifyRegistrationResponse } = require("@simplewebauthn/server");
+const { isoUint8Array } = require("@simplewebauthn/server/helpers");
+const {
+  CognitoIdentityProviderClient,
+  AdminUpdateUserAttributesCommand,
+} = require("@aws-sdk/client-cognito-identity-provider");
 
 module.exports.handler = async (event) => {
-  //TODO: get device from db.  the body of the request will have the device id.
   // TODO: use the webauthn verifyAuthenticationResponse() method to verify the challengeAnswer
 
   // RegistrationResponseJSON
@@ -35,7 +39,73 @@ module.exports.handler = async (event) => {
     event.response.answerCorrect = false;
   }
 
-  //TODO: if answer is correct, update device counter for user and save in db
+  // if answer is correct, update device counter for user and save in db
+  if (verified && registrationInfo) {
+    const { credentialPublicKey, credentialID, counter } = registrationInfo;
 
+    const devices = parseDevices(
+      event.request.userAttributes["custom:devices"]
+    );
+
+    const existingDevice = devices.find((device) =>
+      isoUint8Array.areEqual(device.credentialID, credentialID)
+    );
+
+    if (!existingDevice) {
+      /**
+       * Add the returned device to the user's list of devices
+       */
+      // AuthenticatorDevice
+      const newDevice = {
+        credentialPublicKey,
+        credentialID,
+        counter,
+        transports: body.response.transports,
+      };
+
+      // currently only saving one device.  overwriting previous values
+      await adminUpdateUserAttributes(event.userPoolId, event.userName, [
+        newDevice,
+      ]);
+
+      // user.devices.push(newDevice);
+    }
+  }
   return event;
 };
+
+// returns AuthenticatorDevice[]
+function parseDevices(devicesString) {
+  if (!devicesString) return [];
+
+  return JSON.parse(devicesString);
+}
+
+async function adminUpdateUserAttributes(userPoolId, username, devices) {
+  const client = new CognitoIdentityProviderClient({ region: "us-east-2" });
+
+  //  UserLambdaValidationException: VerifyAuthChallengeResponse failed with error User: arn:aws:sts::298821895416:assumed-role/passwordless-otp-cognito-demo-dev-us-east-2-lambdaRole/passwordless-otp-cognito-demo-dev-verifyAuthChallengeResponse is not authorized to perform: cognito-idp:AdminUpdateUserAttributes on resource: arn:aws:cognito-idp:us-east-2:298821895416:userpool/us-east-2_56O5hbcfY because no identity-based policy allows the cognito-idp:AdminUpdateUserAttributes action.
+
+  const input = {
+    // AdminUpdateUserAttributesRequest
+    UserPoolId: userPoolId, // required
+    Username: username,
+    UserAttributes: [
+      // AttributeListType // required
+      {
+        // AttributeType
+        Name: "custom:devices",
+        Value: JSON.stringify(devices),
+      },
+    ],
+    // ClientMetadata: {
+    //   // ClientMetadataType
+    //   "<keys>": "STRING_VALUE",
+    // },
+  };
+  const command = new AdminUpdateUserAttributesCommand(input);
+
+  const response = await client.send(command);
+
+  return response;
+}

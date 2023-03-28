@@ -123,17 +123,11 @@ async function generateDeviceRegistrationOptions(username, userAttributes) {
   return generateRegistrationOptions(opts);
 }
 
+// returns AuthenticatorDevice[]
 function parseDevices(devicesString) {
   if (!devicesString) return [];
 
   return JSON.parse(devicesString);
-
-  // const newDevice: AuthenticatorDevice = {
-  //   credentialPublicKey: credentialPublicKey,
-  //   credentialID: credentialID,
-  //   counter: counter,
-  //   transports: body.response.transports,
-  // };
 }
 
 async function sendEmail(emailAddress, otpCode) {
