@@ -49,6 +49,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ) => {
     const cognitoUser = await Auth.signIn(email);
     console.log(cognitoUser);
+
+    // TODO: if user exists w/ auth devices use startAuthentication();
+
+    const registrationResponse = await startRegistration(
+      parseRegistrationOptions(cognitoUser)
+    );
+
+    const challengeResult = await Auth.sendCustomChallengeAnswer(
+      cognitoUser,
+      JSON.stringify(registrationResponse)
+    );
+
+    console.log(challengeResult);
     // Auth.signIn();
     return fakeAuthProvider.signin(() => {
       setUser(email);
@@ -67,6 +80,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
+
+const parseRegistrationOptions = (cognitoUser: any) => {
+  if (!cognitoUser) return null;
+
+  const optionsString = cognitoUser.challengeParam.options;
+
+  return JSON.parse(optionsString);
+};
 
 export function useAuth() {
   return React.useContext(AuthContext);
