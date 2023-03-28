@@ -8,12 +8,17 @@ import { fakeAuthProvider } from "../auth";
 import { Amplify, Auth } from "aws-amplify";
 import { AwsConfigAuth } from "../auth.config";
 
+console.log("AwsConfigAuth:", AwsConfigAuth);
+
 Amplify.configure({ Auth: AwsConfigAuth });
 
 export interface AuthContextType {
   user: any;
   signinWebAuthn: (user: string, callback: VoidFunction) => void;
-  signin: (user: string, callback: VoidFunction) => void;
+  signin: (
+    form: { email: string; password: string },
+    callback: VoidFunction
+  ) => Promise<void>;
   signout: (callback: VoidFunction) => void;
 }
 
@@ -38,10 +43,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const signin = (newUser: string, callback: VoidFunction) => {
+  const signin = async (
+    { email, password }: { email: string; password: string },
+    callback: VoidFunction
+  ) => {
+    const cognitoUser = await Auth.signIn(email);
+    console.log(cognitoUser);
     // Auth.signIn();
     return fakeAuthProvider.signin(() => {
-      setUser(newUser);
+      setUser(email);
       callback();
     });
   };

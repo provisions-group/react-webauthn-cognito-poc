@@ -1,13 +1,35 @@
+import { useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
   const { signinWebAuthn, signin } = useAuth();
 
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = useForm({
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+    delayError: 200,
+  });
+
   const onSigninWebAuthn = () => {
     signinWebAuthn("eric", () => {});
   };
-  const onSignin = () => {
-    signin("eric", () => {});
+
+  const onSignin = async (form: any) => {
+    console.log("form:", form);
+    await signin(form, () => {});
+  };
+
+  const onFormError = (e: any) => {
+    console.log("e:", e);
+    console.error("e:", e);
   };
 
   return (
@@ -48,13 +70,22 @@ export default function LoginPage() {
                   Email address
                 </label>
                 <div className="mt-2">
-                  <input
-                    id="email"
+                  <Controller
                     name="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, value } }) => (
+                      <input
+                        value={value}
+                        onChange={onChange}
+                        id="email"
+                        name="email"
+                        type="email"
+                        autoComplete="email"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -67,13 +98,22 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="mt-2">
-                  <input
-                    id="password"
+                  <Controller
                     name="password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { onChange, value } }) => (
+                      <input
+                        value={value}
+                        onChange={onChange}
+                        id="password"
+                        name="password"
+                        type="password"
+                        autoComplete="current-password"
+                        required
+                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -91,7 +131,7 @@ export default function LoginPage() {
 
               <div>
                 <button
-                  onClick={onSignin}
+                  onClick={handleSubmit(onSignin, onFormError)}
                   type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
