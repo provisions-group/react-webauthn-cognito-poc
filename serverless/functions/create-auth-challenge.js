@@ -11,7 +11,6 @@ module.exports.handler = async (event) => {
     throw new Error("missing email");
   }
 
-  let otpCode;
   let options;
   if (!event.request.session || !event.request.session.length) {
     // new auth session
@@ -27,14 +26,8 @@ module.exports.handler = async (event) => {
 
     // if user has registered device, then do this:
     // TODO: for authentication use webauthn generateAuthenticationOptions() to create the challenge. remove sendEmail and otpCode. most likely will remove existing session portion.
-
-    // otpCode = chance.string({ length: 6, alpha: false, symbols: false });
-    otpCode = "taco";
-    // await sendEmail(event.request.userAttributes.email, otpCode);
   } else {
     //TODO: i think if the existing session exists, then do webauthn verifyRegistrationResponse(). then save the device from the result to the db. this possibly needs to be another lambda function using the sign-up post confirmation trigger.
-
-    //TODO: figure out how to set event.request.userAttributes for setting devices in the customAttributes
 
     // existing session, user has provided a wrong answer, so we need to
     // give them another chance
@@ -42,13 +35,13 @@ module.exports.handler = async (event) => {
     const challengeMetadata = previousChallenge?.challengeMetadata;
 
     if (challengeMetadata) {
-      // challengeMetadata should start with "CODE-", hence index of 5
-      otpCode = challengeMetadata.substring(5);
+      // do stuff ?
     }
   }
 
   const attempts = _.size(event.request.session);
   const attemptsLeft = MAX_ATTEMPTS - attempts;
+
   event.response.publicChallengeParameters = {
     options: JSON.stringify(options),
     email: event.request.userAttributes.email,
@@ -57,12 +50,9 @@ module.exports.handler = async (event) => {
     attemptsLeft,
   };
 
-  // TODO: instead of otpCode, use the result from webauthn generateAuthenticationOptions()
-  // const { challenge } = generateAuthenticationOptions();
-
   // NOTE: the private challenge parameters are passed along to the
   // verify step and is not exposed to the caller
-  // need to pass the secret code along so we can verify the user's answer
+  // need to pass the challenge along so we can verify the user's answer
   event.response.privateChallengeParameters = {
     challenge: options.challenge,
   };

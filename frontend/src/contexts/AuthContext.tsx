@@ -8,18 +8,16 @@ import { fakeAuthProvider } from "../auth";
 import { Amplify, Auth } from "aws-amplify";
 import { AwsConfigAuth } from "../auth.config";
 
-console.log("AwsConfigAuth:", AwsConfigAuth);
-
 Amplify.configure({ Auth: AwsConfigAuth });
 
 export interface AuthContextType {
   user: any;
-  signinWebAuthn: (user: string, callback: VoidFunction) => void;
-  signin: (
+  signInWebAuthn: (user: string, callback: VoidFunction) => void;
+  signIn: (
     form: { email: string; password: string },
     callback: VoidFunction
   ) => Promise<void>;
-  signout: (callback: VoidFunction) => void;
+  signOut: () => Promise<void>;
 }
 
 const AuthContext = React.createContext<AuthContextType>(null!);
@@ -27,7 +25,7 @@ const AuthContext = React.createContext<AuthContextType>(null!);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
 
-  const signinWebAuthn = (newUser: string, callback: VoidFunction) => {
+  const signInWebAuthn = (newUser: string, callback: VoidFunction) => {
     // TODO: add webauthn. guide: https://simplewebauthn.dev/docs/packages/browser
 
     // if first time
@@ -43,7 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const signin = async (
+  const signIn = async (
     { email, password }: { email: string; password: string },
     callback: VoidFunction
   ) => {
@@ -69,14 +67,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
-  const signout = (callback: VoidFunction) => {
-    return fakeAuthProvider.signout(() => {
-      setUser(null);
-      callback();
-    });
+  const signOut = async () => {
+    await Auth.signOut();
+    setUser(null);
   };
 
-  const value = { user, signinWebAuthn, signin, signout };
+  const value = { user, signInWebAuthn, signIn, signOut };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

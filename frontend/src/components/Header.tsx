@@ -10,11 +10,11 @@ function classNames(...classes: string[]) {
 }
 
 export function Header() {
-  const { signout } = useAuth();
+  const { signOut } = useAuth();
   const navigate = useNavigate();
 
-  const onSignout = () => {
-    signout(() => {});
+  const onSignout = async () => {
+    await signOut();
   };
 
   const navigateToHome = () => {

@@ -3,7 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
-  const { signinWebAuthn, signin } = useAuth();
+  const { signInWebAuthn, signIn } = useAuth();
 
   const {
     control,
@@ -18,13 +18,13 @@ export default function LoginPage() {
     delayError: 200,
   });
 
-  const onSigninWebAuthn = () => {
-    signinWebAuthn("eric", () => {});
+  const onSignInWebAuthn = () => {
+    signInWebAuthn("eric", () => {});
   };
 
-  const onSignin = async (form: any) => {
+  const onSignIn = async (form: any) => {
     console.log("form:", form);
-    await signin(form, () => {});
+    await signIn(form, () => {});
   };
 
   const onFormError = (e: any) => {
@@ -51,7 +51,7 @@ export default function LoginPage() {
             <form className="space-y-6" action="#" method="POST">
               <div>
                 <button
-                  onClick={onSigninWebAuthn}
+                  onClick={onSignInWebAuthn}
                   type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
@@ -131,7 +131,7 @@ export default function LoginPage() {
 
               <div>
                 <button
-                  onClick={handleSubmit(onSignin, onFormError)}
+                  onClick={handleSubmit(onSignIn, onFormError)}
                   type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
