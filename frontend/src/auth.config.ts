@@ -9,5 +9,4 @@ export const AwsConfigAuth = {
     sameSite: "strict",
     secure: true,
   },
-  // authenticationFlowType: "USER_SRP_AUTH",
 };

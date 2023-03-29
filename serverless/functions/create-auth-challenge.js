@@ -1,10 +1,9 @@
 const _ = require("lodash");
-const { generateRegistrationOptions } = require("@simplewebauthn/server");
-const Chance = require("chance");
-const chance = new Chance();
+const {
+  generateRegistrationOptions,
+  generateAuthenticationOptions,
+} = require("@simplewebauthn/server");
 const { MAX_ATTEMPTS } = require("../lib/constants");
-
-const { SES_FROM_ADDRESS } = process.env;
 
 module.exports.handler = async (event) => {
   if (!event.request.userAttributes.email) {
@@ -15,29 +14,21 @@ module.exports.handler = async (event) => {
   if (!event.request.session || !event.request.session.length) {
     // new auth session
 
-    // if user does not have registered device, then do this:
-    // TODO: for registration use webauthn generateRegistrationOptions(). this possibly needs to be another lambda function using the sign-up post confirmation trigger
-
-    // const user = await adminGetUser(event.userPoolId, event.userName);
-    options = await generateDeviceRegistrationOptions(
-      event.userName,
-      event.request.userAttributes
-    );
-
-    // if user has registered device, then do this:
-    // TODO: for authentication use webauthn generateAuthenticationOptions() to create the challenge. remove sendEmail and otpCode. most likely will remove existing session portion.
-  } else {
-    //TODO: i think if the existing session exists, then do webauthn verifyRegistrationResponse(). then save the device from the result to the db. this possibly needs to be another lambda function using the sign-up post confirmation trigger.
-
-    // existing session, user has provided a wrong answer, so we need to
-    // give them another chance
-    const previousChallenge = _.last(event.request.session);
-    const challengeMetadata = previousChallenge?.challengeMetadata;
-
-    if (challengeMetadata) {
-      // do stuff ?
+    if (hasRegisteredDevice(event.request.userAttributes)) {
+      options = await generateDeviceAuthenticationOptions(
+        event.request.userAttributes
+      );
+    } else {
+      options = await generateDeviceRegistrationOptions(
+        event.userName,
+        event.request.userAttributes
+      );
     }
   }
+  // // existing session, user has provided a wrong answer, so we need to
+  // // give them another chance
+  // const previousChallenge = _.last(event.request.session);
+  // const challengeMetadata = previousChallenge?.challengeMetadata;
 
   const attempts = _.size(event.request.session);
   const attemptsLeft = MAX_ATTEMPTS - attempts;
@@ -58,14 +49,33 @@ module.exports.handler = async (event) => {
   };
 
   // TODO: remove this if possible
-  event.response.challengeMetadata = `CODE-${options.challenge}`;
+  // event.response.challengeMetadata = `CODE-${options.challenge}`;
 
   return event;
 };
 
+async function generateDeviceAuthenticationOptions(userAttributes) {
+  const devices = parseDevices(userAttributes["custom:devices"]);
+
+  // GenerateAuthenticationOptionsOpts
+  const opts = {
+    timeout: 60000,
+    allowCredentials: devices.map((dev) => ({
+      id: dev.credentialID,
+      type: "public-key",
+      transports: dev.transports,
+    })),
+    userVerification: "required",
+    rpID: "localhost",
+  };
+
+  return generateAuthenticationOptions(opts);
+}
+
 async function generateDeviceRegistrationOptions(username, userAttributes) {
   const devices = parseDevices(userAttributes["custom:devices"]);
 
+  // GenerateRegistrationOptionsOpts
   const opts = {
     rpName: "SimpleWebAuthn Example",
     rpID: "localhost",
@@ -94,6 +104,11 @@ async function generateDeviceRegistrationOptions(username, userAttributes) {
   };
 
   return generateRegistrationOptions(opts);
+}
+
+function hasRegisteredDevice(userAttributes) {
+  const devices = parseDevices(userAttributes["custom:devices"]);
+  return devices.length > 0;
 }
 
 // returns AuthenticatorDevice[]

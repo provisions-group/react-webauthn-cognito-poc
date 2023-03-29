@@ -3,7 +3,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
-  const { signInWebAuthn, signIn } = useAuth();
+  const { signUpWebAuthn, signInWebAuthn, signIn, signUp } = useAuth();
 
   const {
     control,
@@ -18,13 +18,20 @@ export default function LoginPage() {
     delayError: 200,
   });
 
-  const onSignInWebAuthn = () => {
-    signInWebAuthn("eric", () => {});
+  const onSignUpWebAuthn = async (form: any) => {
+    await signUpWebAuthn(form.email);
+  };
+
+  const onSignInWebAuthn = async (form: any) => {
+    await signInWebAuthn(form.email);
   };
 
   const onSignIn = async (form: any) => {
-    console.log("form:", form);
-    await signIn(form, () => {});
+    await signIn(form);
+  };
+
+  const onSignUp = async (form: any) => {
+    await signUp(form);
   };
 
   const onFormError = (e: any) => {
@@ -51,11 +58,20 @@ export default function LoginPage() {
             <form className="space-y-6" action="#" method="POST">
               <div>
                 <button
-                  onClick={onSignInWebAuthn}
+                  onClick={handleSubmit(onSignInWebAuthn, onFormError)}
                   type="button"
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   WebAuthn Sign in
+                </button>
+              </div>
+              <div>
+                <button
+                  onClick={handleSubmit(onSignUpWebAuthn, onFormError)}
+                  type="button"
+                  className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  WebAuthn Sign up
                 </button>
               </div>
 
@@ -101,7 +117,6 @@ export default function LoginPage() {
                   <Controller
                     name="password"
                     control={control}
-                    rules={{ required: true }}
                     render={({ field: { onChange, value } }) => (
                       <input
                         value={value}
@@ -136,6 +151,15 @@ export default function LoginPage() {
                   className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                 >
                   Sign in
+                </button>
+              </div>
+              <div>
+                <button
+                  onClick={handleSubmit(onSignUp, onFormError)}
+                  type="button"
+                  className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                >
+                  Sign up
                 </button>
               </div>
             </form>

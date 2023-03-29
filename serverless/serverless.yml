@@ -10,10 +10,6 @@ provider:
   runtime: nodejs16.x
   region: us-east-2
 
-custom:
-  # replace with your verified SES domain
-  domain: provisionsgroup.com
-
 functions:
   preSignUp:
     handler: functions/pre-sign-up.handler
@@ -49,7 +45,7 @@ resources:
           # we won't be using passwords, but we also don't
           # want weak passwords in the system ;-)
           PasswordPolicy:
-            MinimumLength: 16
+            MinimumLength: 8
             RequireLowercase: true
             RequireNumbers: true
             RequireUppercase: true
@@ -73,6 +69,7 @@ resources:
         ClientName: web
         UserPoolId: !Ref PasswordlessOtpUserPool
         ExplicitAuthFlows:
+          - ALLOW_USER_SRP_AUTH
           - ALLOW_CUSTOM_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
         PreventUserExistenceErrors: ENABLED
