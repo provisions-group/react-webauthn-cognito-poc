@@ -3,6 +3,8 @@ service: passwordless-otp-cognito-demo
 frameworkVersion: "3"
 
 plugins:
+  - serverless-plugin-typescript
+  - serverless-esbuild
   - serverless-iam-roles-per-function
 
 provider:
