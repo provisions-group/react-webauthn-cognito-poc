@@ -4,12 +4,11 @@ frameworkVersion: "3"
 
 plugins:
   - serverless-plugin-typescript
-  - serverless-esbuild
   - serverless-iam-roles-per-function
 
 provider:
   name: aws
-  runtime: nodejs16.x
+  runtime: nodejs18.x
   region: us-east-2
 
 functions:

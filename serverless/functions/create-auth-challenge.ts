@@ -11,6 +11,7 @@ import {
 
 import { Context, Callback } from "aws-lambda";
 import { CognitoCreateAuthEvent, Authenticator } from "../local-types";
+import { Buffer } from "buffer";
 
 export const handler = async (
   event: CognitoCreateAuthEvent,

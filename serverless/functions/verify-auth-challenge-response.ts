@@ -13,6 +13,7 @@ import {
 } from "@aws-sdk/client-cognito-identity-provider";
 import { Authenticator, CognitoVerifyAuthEvent } from "../local-types";
 import { Callback, Context } from "aws-lambda";
+import { Buffer } from "buffer";
 
 export const handler = async (
   event: CognitoVerifyAuthEvent,
