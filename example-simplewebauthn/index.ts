@@ -5,15 +5,15 @@
  * The webpages served from ./public use @simplewebauthn/browser.
  */
 
-import https from 'https';
-import http from 'http';
-import fs from 'fs';
+import https from "https";
+import http from "http";
+import fs from "fs";
 
-import express from 'express';
-import session from 'express-session';
-import memoryStore from 'memorystore';
-import dotenv from 'dotenv';
-import base64url from 'base64url';
+import express from "express";
+import session from "express-session";
+import memoryStore from "memorystore";
+import dotenv from "dotenv";
+import base64url from "base64url";
 
 dotenv.config();
 
@@ -24,8 +24,8 @@ import {
   // Authentication
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
-} from '@simplewebauthn/server';
-import { isoUint8Array } from '@simplewebauthn/server/helpers';
+} from "@simplewebauthn/server";
+import { isoUint8Array } from "@simplewebauthn/server/helpers";
 import type {
   GenerateRegistrationOptionsOpts,
   GenerateAuthenticationOptionsOpts,
@@ -33,30 +33,26 @@ import type {
   VerifyAuthenticationResponseOpts,
   VerifiedRegistrationResponse,
   VerifiedAuthenticationResponse,
-} from '@simplewebauthn/server';
+} from "@simplewebauthn/server";
 
 import type {
   RegistrationResponseJSON,
   AuthenticationResponseJSON,
   AuthenticatorDevice,
-} from '@simplewebauthn/typescript-types';
+} from "@simplewebauthn/typescript-types";
 
-import { LoggedInUser } from './example-server';
+import { LoggedInUser } from "./example-server";
 
 const app = express();
 const MemoryStore = memoryStore(session);
 
-const {
-  ENABLE_CONFORMANCE,
-  ENABLE_HTTPS,
-  RP_ID = 'localhost',
-} = process.env;
+const { ENABLE_CONFORMANCE, ENABLE_HTTPS, RP_ID = "localhost" } = process.env;
 
-app.use(express.static('./public/'));
+app.use(express.static("./public/"));
 app.use(express.json());
 app.use(
   session({
-    secret: 'secret123',
+    secret: "secret123",
     saveUninitialized: true,
     resave: false,
     cookie: {
@@ -66,7 +62,7 @@ app.use(
     store: new MemoryStore({
       checkPeriod: 86_400_000, // prune expired entries every 24h
     }),
-  }),
+  })
 );
 
 /**
@@ -75,10 +71,12 @@ app.use(
  * FIDO Metadata Service. This enables greater control over the types of authenticators that can
  * interact with the Rely Party (a.k.a. "RP", a.k.a. "this server").
  */
-if (ENABLE_CONFORMANCE === 'true') {
-  import('./fido-conformance').then(({ fidoRouteSuffix, fidoConformanceRouter }) => {
-    app.use(fidoRouteSuffix, fidoConformanceRouter);
-  });
+if (ENABLE_CONFORMANCE === "true") {
+  import("./fido-conformance").then(
+    ({ fidoRouteSuffix, fidoConformanceRouter }) => {
+      app.use(fidoRouteSuffix, fidoConformanceRouter);
+    }
+  );
 }
 
 /**
@@ -89,7 +87,7 @@ export const rpID = RP_ID;
 // This value is set at the bottom of page as part of server initialization (the empty string is
 // to appease TypeScript until we determine the expected origin based on whether or not HTTPS
 // support is enabled)
-export let expectedOrigin = '';
+export let expectedOrigin = "";
 
 /**
  * 2FA and Passwordless WebAuthn flows expect you to be able to uniquely identify the user that
@@ -99,7 +97,7 @@ export let expectedOrigin = '';
  *
  * Here, the example server assumes the following user has completed login:
  */
-const loggedInUserId = 'internalUserId';
+const loggedInUserId = "internalUserId";
 
 const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
   [loggedInUserId]: {
@@ -109,10 +107,14 @@ const inMemoryUserDeviceDB: { [loggedInUserId: string]: LoggedInUser } = {
   },
 };
 
+app.get("/users", (req, res) => {
+  return res.send(inMemoryUserDeviceDB);
+});
+
 /**
  * Registration (a.k.a. "Registration")
  */
-app.get('/generate-registration-options', (req, res) => {
+app.get("/generate-registration-options", (req, res) => {
   const user = inMemoryUserDeviceDB[loggedInUserId];
 
   const {
@@ -124,25 +126,25 @@ app.get('/generate-registration-options', (req, res) => {
   } = user;
 
   const opts: GenerateRegistrationOptionsOpts = {
-    rpName: 'SimpleWebAuthn Example',
+    rpName: "SimpleWebAuthn Example",
     rpID,
     userID: loggedInUserId,
     userName: username,
     timeout: 60000,
-    attestationType: 'none',
+    attestationType: "none",
     /**
      * Passing in a user's list of already-registered authenticator IDs here prevents users from
      * registering the same device multiple times. The authenticator will simply throw an error in
      * the browser if it's asked to perform registration when one of these ID's already resides
      * on it.
      */
-    excludeCredentials: devices.map(dev => ({
+    excludeCredentials: devices.map((dev) => ({
       id: dev.credentialID,
-      type: 'public-key',
+      type: "public-key",
       transports: dev.transports,
     })),
     authenticatorSelection: {
-      residentKey: 'discouraged',
+      residentKey: "discouraged",
     },
     /**
      * Support the two most common algorithms: ES256, and RS256
@@ -161,7 +163,7 @@ app.get('/generate-registration-options', (req, res) => {
   res.send(options);
 });
 
-app.post('/verify-registration', async (req, res) => {
+app.post("/verify-registration", async (req, res) => {
   const body: RegistrationResponseJSON = req.body;
 
   const user = inMemoryUserDeviceDB[loggedInUserId];
@@ -189,7 +191,9 @@ app.post('/verify-registration', async (req, res) => {
   if (verified && registrationInfo) {
     const { credentialPublicKey, credentialID, counter } = registrationInfo;
 
-    const existingDevice = user.devices.find(device => isoUint8Array.areEqual(device.credentialID, credentialID));
+    const existingDevice = user.devices.find((device) =>
+      isoUint8Array.areEqual(device.credentialID, credentialID)
+    );
 
     if (!existingDevice) {
       /**
@@ -213,22 +217,24 @@ app.post('/verify-registration', async (req, res) => {
 /**
  * Login (a.k.a. "Authentication")
  */
-app.get('/generate-authentication-options', (req, res) => {
+app.get("/generate-authentication-options", (req, res) => {
   // You need to know the user by this point
   const user = inMemoryUserDeviceDB[loggedInUserId];
 
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
-    allowCredentials: user.devices.map(dev => ({
+    allowCredentials: user.devices.map((dev) => ({
       id: dev.credentialID,
-      type: 'public-key',
+      type: "public-key",
       transports: dev.transports,
     })),
-    userVerification: 'required',
+    userVerification: "required",
     rpID,
   };
 
   const options = generateAuthenticationOptions(opts);
+
+  console.log("generateAuthenticationOptions():", options);
 
   /**
    * The server needs to temporarily remember this value for verification, so don't lose it until
@@ -239,7 +245,29 @@ app.get('/generate-authentication-options', (req, res) => {
   res.send(options);
 });
 
-app.post('/verify-authentication', async (req, res) => {
+/**
+ * Get options for generating options - for debugging
+ */
+app.get("/generate-authentication-options-options", (req, res) => {
+  // You need to know the user by this point
+  const user = inMemoryUserDeviceDB[loggedInUserId];
+
+  const opts: GenerateAuthenticationOptionsOpts = {
+    timeout: 60000,
+    allowCredentials: user.devices.map((dev) => ({
+      id: dev.credentialID,
+      type: "public-key",
+      transports: dev.transports,
+    })),
+    userVerification: "required",
+    rpID,
+  };
+  console.log("opts:", opts);
+
+  res.send(opts);
+});
+
+app.post("/verify-authentication", async (req, res) => {
   const body: AuthenticationResponseJSON = req.body;
 
   const user = inMemoryUserDeviceDB[loggedInUserId];
@@ -248,6 +276,7 @@ app.post('/verify-authentication', async (req, res) => {
 
   let dbAuthenticator;
   const bodyCredIDBuffer = base64url.toBuffer(body.rawId);
+  console.log("bodyCredIDBuffer:", bodyCredIDBuffer);
   // "Query the DB" here for an authenticator matching `credentialID`
   for (const dev of user.devices) {
     if (isoUint8Array.areEqual(dev.credentialID, bodyCredIDBuffer)) {
@@ -257,7 +286,9 @@ app.post('/verify-authentication', async (req, res) => {
   }
 
   if (!dbAuthenticator) {
-    return res.status(400).send({ error: 'Authenticator is not registered with this site' });
+    return res
+      .status(400)
+      .send({ error: "Authenticator is not registered with this site" });
   }
 
   let verification: VerifiedAuthenticationResponse;
@@ -290,7 +321,7 @@ app.post('/verify-authentication', async (req, res) => {
 });
 
 if (ENABLE_HTTPS) {
-  const host = '0.0.0.0';
+  const host = "0.0.0.0";
   const port = 443;
   expectedOrigin = `https://${rpID}`;
 
@@ -303,13 +334,13 @@ if (ENABLE_HTTPS) {
         key: fs.readFileSync(`./${rpID}.key`),
         cert: fs.readFileSync(`./${rpID}.crt`),
       },
-      app,
+      app
     )
     .listen(port, host, () => {
       console.log(`🚀 Server ready at ${expectedOrigin} (${host}:${port})`);
     });
 } else {
-  const host = '127.0.0.1';
+  const host = "127.0.0.1";
   const port = 8000;
   expectedOrigin = `http://localhost:${port}`;
 

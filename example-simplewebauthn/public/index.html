@@ -36,28 +36,28 @@
        * to include this just before </body> as we'd typically do. And at that point we can
        * probably use async/await as well for more sane-looking code.
        */
-      fetch('/generate-authentication-options')
-        .then(resp => resp.json())
-        .then(opts => {
-          console.log('Authentication Options (Autofill)', opts);
+      fetch("/generate-authentication-options")
+        .then((resp) => resp.json())
+        .then((opts) => {
+          console.log("Authentication Options (Autofill)", opts);
           startAuthentication(opts, true)
-            .then(async asseResp => {
+            .then(async (asseResp) => {
               // We can assume the DOM has loaded by now because it had to for the user to be able
               // to interact with an input to choose a credential from the autofill
-              const elemSuccess = document.querySelector('#authSuccess');
-              const elemError = document.querySelector('#authError');
-              const elemDebug = document.querySelector('#authDebug');
+              const elemSuccess = document.querySelector("#authSuccess");
+              const elemError = document.querySelector("#authError");
+              const elemDebug = document.querySelector("#authDebug");
 
               printDebug(
                 elemDebug,
-                'Authentication Response (Autofill)',
-                JSON.stringify(asseResp, null, 2),
+                "Authentication Response (Autofill)",
+                JSON.stringify(asseResp, null, 2)
               );
 
-              const verificationResp = await fetch('/verify-authentication', {
-                method: 'POST',
+              const verificationResp = await fetch("/verify-authentication", {
+                method: "POST",
                 headers: {
-                  'Content-Type': 'application/json',
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify(asseResp),
               });
@@ -65,20 +65,20 @@
               const verificationJSON = await verificationResp.json();
               printDebug(
                 elemDebug,
-                'Server Response (Autofill)',
-                JSON.stringify(verificationJSON, null, 2),
+                "Server Response (Autofill)",
+                JSON.stringify(verificationJSON, null, 2)
               );
 
               if (verificationJSON && verificationJSON.verified) {
                 elemSuccess.innerHTML = `User authenticated!`;
               } else {
                 elemError.innerHTML = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
-                  verificationJSON,
+                  verificationJSON
                 )}</pre>`;
               }
             })
-            .catch(err => {
-              console.error('(Autofill)', err);
+            .catch((err) => {
+              console.error("(Autofill)", err);
             });
         });
     </script>
@@ -106,7 +106,12 @@
           <form onsubmit="stopSubmit(event)">
             <section id="inputUsername">
               <label for="username">Username</label>
-              <input type="text" name="username" autocomplete="webauthn" autofocus />
+              <input
+                type="text"
+                name="username"
+                autocomplete="webauthn"
+                autofocus
+              />
               <br />
               <label for="password">Password</label>
               <input type="password" name="password" autocomplete="webauthn" />
@@ -114,6 +119,12 @@
             </section>
             <button id="btnAuthBegin">
               <strong>🔐&nbsp;Authenticate</strong>
+            </button>
+            <button id="btnGetUsers">
+              <strong>🔐&nbsp;Get Users</strong>
+            </button>
+            <button id="btnGetAuthOptions">
+              <strong>🔐&nbsp;Get Auth Options</strong>
             </button>
           </form>
           <p id="authSuccess" class="success"></p>
@@ -128,7 +139,8 @@
       <p class="systemError"></p>
     </div>
     <script>
-      const { browserSupportsWebAuthn, startRegistration } = SimpleWebAuthnBrowser;
+      const { browserSupportsWebAuthn, startRegistration } =
+        SimpleWebAuthnBrowser;
 
       function stopSubmit(event) {
         event.preventDefault();
@@ -138,8 +150,8 @@
        * A simple way to control how debug content is written to a debug console element
        */
       function printDebug(elemDebug, title, output) {
-        if (elemDebug.innerHTML !== '') {
-          elemDebug.innerHTML += '\n';
+        if (elemDebug.innerHTML !== "") {
+          elemDebug.innerHTML += "\n";
         }
         elemDebug.innerHTML += `// ${title}\n`;
         elemDebug.innerHTML += `${output}\n`;
@@ -147,117 +159,190 @@
 
       // Hide the Begin button if the browser is incapable of using WebAuthn
       if (!browserSupportsWebAuthn()) {
-        document.querySelector('.controls').style.display = 'none';
-        document.querySelector('.systemError').innerText =
+        document.querySelector(".controls").style.display = "none";
+        document.querySelector(".systemError").innerText =
           "It seems this browser doesn't support WebAuthn...";
       } else {
         function hideAuthForm() {
-          document.getElementById('inputUsername').style.display = 'none';
+          document.getElementById("inputUsername").style.display = "none";
         }
 
         /**
          * Registration
          */
-        document.querySelector('#btnRegBegin').addEventListener('click', async () => {
-          const elemSuccess = document.querySelector('#regSuccess');
-          const elemError = document.querySelector('#regError');
-          const elemDebug = document.querySelector('#regDebug');
+        document
+          .querySelector("#btnRegBegin")
+          .addEventListener("click", async () => {
+            const elemSuccess = document.querySelector("#regSuccess");
+            const elemError = document.querySelector("#regError");
+            const elemDebug = document.querySelector("#regDebug");
 
-          // Reset success/error messages
-          elemSuccess.innerHTML = '';
-          elemError.innerHTML = '';
-          elemDebug.innerHTML = '';
+            // Reset success/error messages
+            elemSuccess.innerHTML = "";
+            elemError.innerHTML = "";
+            elemDebug.innerHTML = "";
 
-          const resp = await fetch('/generate-registration-options');
+            const resp = await fetch("/generate-registration-options");
 
-          let attResp;
-          try {
-            const opts = await resp.json();
+            let attResp;
+            try {
+              const opts = await resp.json();
 
-            printDebug(elemDebug, 'Registration Options', JSON.stringify(opts, null, 2));
+              printDebug(
+                elemDebug,
+                "Registration Options",
+                JSON.stringify(opts, null, 2)
+              );
 
-            hideAuthForm();
+              hideAuthForm();
 
-            attResp = await startRegistration(opts);
-            printDebug(elemDebug, 'Registration Response', JSON.stringify(attResp, null, 2));
-          } catch (error) {
-            if (error.name === 'InvalidStateError') {
-              elemError.innerText = 'Error: Authenticator was probably already registered by user';
-            } else {
-              elemError.innerText = error;
+              attResp = await startRegistration(opts);
+              printDebug(
+                elemDebug,
+                "Registration Response",
+                JSON.stringify(attResp, null, 2)
+              );
+            } catch (error) {
+              if (error.name === "InvalidStateError") {
+                elemError.innerText =
+                  "Error: Authenticator was probably already registered by user";
+              } else {
+                elemError.innerText = error;
+              }
+
+              throw error;
             }
 
-            throw error;
-          }
+            const verificationResp = await fetch("/verify-registration", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(attResp),
+            });
 
-          const verificationResp = await fetch('/verify-registration', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(attResp),
+            const verificationJSON = await verificationResp.json();
+            printDebug(
+              elemDebug,
+              "Server Response",
+              JSON.stringify(verificationJSON, null, 2)
+            );
+
+            if (verificationJSON && verificationJSON.verified) {
+              elemSuccess.innerHTML = `Authenticator registered!`;
+            } else {
+              elemError.innerHTML = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
+                verificationJSON
+              )}</pre>`;
+            }
           });
-
-          const verificationJSON = await verificationResp.json();
-          printDebug(elemDebug, 'Server Response', JSON.stringify(verificationJSON, null, 2));
-
-          if (verificationJSON && verificationJSON.verified) {
-            elemSuccess.innerHTML = `Authenticator registered!`;
-          } else {
-            elemError.innerHTML = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
-              verificationJSON,
-            )}</pre>`;
-          }
-        });
 
         /**
          * Authentication
          */
-        document.querySelector('#btnAuthBegin').addEventListener('click', async () => {
-          const elemSuccess = document.querySelector('#authSuccess');
-          const elemError = document.querySelector('#authError');
-          const elemDebug = document.querySelector('#authDebug');
+        document
+          .querySelector("#btnAuthBegin")
+          .addEventListener("click", async () => {
+            const elemSuccess = document.querySelector("#authSuccess");
+            const elemError = document.querySelector("#authError");
+            const elemDebug = document.querySelector("#authDebug");
 
-          // Reset success/error messages
-          elemSuccess.innerHTML = '';
-          elemError.innerHTML = '';
-          elemDebug.innerHTML = '';
+            // Reset success/error messages
+            elemSuccess.innerHTML = "";
+            elemError.innerHTML = "";
+            elemDebug.innerHTML = "";
 
-          const resp = await fetch('/generate-authentication-options');
+            const resp = await fetch("/generate-authentication-options");
 
-          let asseResp;
-          try {
-            const opts = await resp.json();
-            printDebug(elemDebug, 'Authentication Options', JSON.stringify(opts, null, 2));
+            let asseResp;
+            try {
+              const opts = await resp.json();
+              printDebug(
+                elemDebug,
+                "Authentication Options",
+                JSON.stringify(opts, null, 2)
+              );
 
-            hideAuthForm();
+              hideAuthForm();
 
-            asseResp = await startAuthentication(opts);
-            printDebug(elemDebug, 'Authentication Response', JSON.stringify(asseResp, null, 2));
-          } catch (error) {
-            elemError.innerText = error;
-            throw new Error(error);
-          }
+              asseResp = await startAuthentication(opts);
+              printDebug(
+                elemDebug,
+                "Authentication Response",
+                JSON.stringify(asseResp, null, 2)
+              );
+            } catch (error) {
+              elemError.innerText = error;
+              throw new Error(error);
+            }
 
-          const verificationResp = await fetch('/verify-authentication', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(asseResp),
+            const verificationResp = await fetch("/verify-authentication", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(asseResp),
+            });
+
+            const verificationJSON = await verificationResp.json();
+            printDebug(
+              elemDebug,
+              "Server Response",
+              JSON.stringify(verificationJSON, null, 2)
+            );
+
+            if (verificationJSON && verificationJSON.verified) {
+              elemSuccess.innerHTML = `User authenticated!`;
+            } else {
+              elemError.innerHTML = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
+                verificationJSON
+              )}</pre>`;
+            }
           });
 
-          const verificationJSON = await verificationResp.json();
-          printDebug(elemDebug, 'Server Response', JSON.stringify(verificationJSON, null, 2));
+        document
+          .querySelector("#btnGetUsers")
+          .addEventListener("click", async () => {
+            const elemSuccess = document.querySelector("#authSuccess");
+            const elemError = document.querySelector("#authError");
+            const elemDebug = document.querySelector("#authDebug");
 
-          if (verificationJSON && verificationJSON.verified) {
-            elemSuccess.innerHTML = `User authenticated!`;
-          } else {
-            elemError.innerHTML = `Oh no, something went wrong! Response: <pre>${JSON.stringify(
-              verificationJSON,
-            )}</pre>`;
-          }
-        });
+            const resp = await fetch("/users");
+
+            let asseResp;
+            try {
+              const opts = await resp.json();
+              printDebug(elemDebug, "Users", JSON.stringify(opts, null, 2));
+            } catch (error) {
+              elemError.innerText = error;
+              throw new Error(error);
+            }
+          });
+
+        document
+          .querySelector("#btnGetAuthOptions")
+          .addEventListener("click", async () => {
+            const elemSuccess = document.querySelector("#authSuccess");
+            const elemError = document.querySelector("#authError");
+            const elemDebug = document.querySelector("#authDebug");
+
+            const resp = await fetch(
+              "/generate-authentication-options-options"
+            );
+
+            let asseResp;
+            try {
+              const opts = await resp.json();
+              printDebug(
+                elemDebug,
+                "Generate-auth-options-options",
+                JSON.stringify(opts, null, 2)
+              );
+            } catch (error) {
+              elemError.innerText = error;
+              throw new Error(error);
+            }
+          });
       }
     </script>
   </body>

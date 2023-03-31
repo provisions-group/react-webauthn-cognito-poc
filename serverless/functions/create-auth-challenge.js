@@ -3,7 +3,7 @@ const {
   generateRegistrationOptions,
   generateAuthenticationOptions,
 } = require("@simplewebauthn/server");
-const { MAX_ATTEMPTS } = require("../lib/constants");
+// const { MAX_ATTEMPTS } = require("../lib/constants");
 
 module.exports.handler = async (event) => {
   if (!event.request.userAttributes.email) {
@@ -30,15 +30,29 @@ module.exports.handler = async (event) => {
   // const previousChallenge = _.last(event.request.session);
   // const challengeMetadata = previousChallenge?.challengeMetadata;
 
-  const attempts = _.size(event.request.session);
-  const attemptsLeft = MAX_ATTEMPTS - attempts;
+  // const attempts = _.size(event.request.session);
+  // const attemptsLeft = MAX_ATTEMPTS - attempts;
+
+  //TODO: testing
+  const devices = parseDevices(event.request.userAttributes["custom:devices"]);
+  //TODO: test GenerateAuthenticationOptionsOpts
+  const opts = {
+    timeout: 60000,
+    allowCredentials: devices.map((dev) => ({
+      id: dev.credentialID,
+      type: "public-key",
+      transports: dev.transports,
+    })),
+    userVerification: "required",
+    rpID: "localhost",
+  };
 
   event.response.publicChallengeParameters = {
     options: JSON.stringify(options),
+    devices: JSON.stringify(devices), // testing
+    generateOpts: JSON.stringify(opts), // testing
+    hasRegisteredDevice: hasRegisteredDevice(event.request.userAttributes), // testing
     email: event.request.userAttributes.email,
-    maxAttempts: MAX_ATTEMPTS,
-    attempts,
-    attemptsLeft,
   };
 
   // NOTE: the private challenge parameters are passed along to the
@@ -115,5 +129,19 @@ function hasRegisteredDevice(userAttributes) {
 function parseDevices(devicesString) {
   if (!devicesString) return [];
 
-  return JSON.parse(devicesString);
+  const devices = JSON.parse(devicesString);
+
+  return devices.map((device) => ({
+    credentialID: Buffer.from(JSON.stringify(device.credentialID)), // JSON.parse does not recursively resolve ArrayBuffers
+    credentialPublicKey: Buffer.from(
+      JSON.stringify(device.credentialPublicKey)
+    ), // JSON.parse does not recursively resolve ArrayBuffers
+    counter: device.counter,
+    transports: device.transports || [],
+  }));
 }
+
+// function jsonToBase64Url(object) {
+//   const json = JSON.stringify(object);
+//   return Buffer.from(json).toString("base64Url");
+// }

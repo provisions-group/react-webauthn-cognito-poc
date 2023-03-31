@@ -11,6 +11,7 @@ import { AwsConfigAuth } from "../auth.config";
 export interface AuthContextType {
   user: any;
   configureFlow: (flow: "USER_SRP_AUTH" | "CUSTOM_AUTH") => void;
+  signUpWebAuthn: (email: string) => Promise<void>;
   signInWebAuthn: (email: string) => Promise<void>;
   signUp: (form: { email: string; password: string }) => Promise<void>;
   signIn: (form: { email: string; password: string }) => Promise<void>;
@@ -65,13 +66,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUpWebAuthn = async (email: string) => {
     configureFlow("CUSTOM_AUTH");
 
-    console.log("email:", email);
     const cognitoUser = await Auth.signIn(email);
     console.log(cognitoUser);
+
+    // TODO: temp
+    const options = parseWebAuthnOptions(cognitoUser);
+    console.log("registration options:", options);
 
     const registrationResponse = await startRegistration(
       parseWebAuthnOptions(cognitoUser)
     );
+
+    console.log("registrationResponse:", registrationResponse);
 
     const challengeResult = await Auth.sendCustomChallengeAnswer(
       cognitoUser,
@@ -86,13 +92,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWebAuthn = async (email: string) => {
     configureFlow("CUSTOM_AUTH");
 
-    console.log("email:", email);
     const cognitoUser = await Auth.signIn(email);
     console.log(cognitoUser);
+
+    // TODO: temp
+    const options = parseWebAuthnOptions(cognitoUser);
+    console.log("authentication options:", options);
 
     const authenticationResponse = await startAuthentication(
       parseWebAuthnOptions(cognitoUser)
     );
+
+    console.log("authenticationResponse:", authenticationResponse);
 
     const challengeResult = await Auth.sendCustomChallengeAnswer(
       cognitoUser,
