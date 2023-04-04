@@ -85,6 +85,8 @@ async function generateDeviceAuthenticationOptions(
 ) {
   const devices = parseDevices(event);
 
+  // Uncaught (in promise) UserLambdaValidationException: CreateAuthChallenge failed with error The first argument must be of type string or an instance of Buffer, ArrayBuffer, or Array or an Array-like Object. Received an instance of Object.
+
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
     allowCredentials: devices.map((dev) => ({
