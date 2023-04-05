@@ -115,6 +115,8 @@ async function addDeviceToUser(
      */
     // AuthenticatorDevice
     const newDevice: Authenticator = {
+      id: credentialID,
+      type: "public-key",
       credentialPublicKey: credentialPublicKey || Buffer.from(""),
       credentialID: credentialID || Buffer.from(""),
       counter: counter || 0,
@@ -167,6 +169,8 @@ function parseDevices(event: CognitoVerifyAuthEvent): Authenticator[] {
   const devices: Authenticator[] = JSON.parse(devicesString);
 
   return devices.map((device) => ({
+    id: Buffer.from(device.credentialID),
+    type: "public-key",
     credentialID: Buffer.from(device.credentialID), // JSON.parse does not recursively resolve ArrayBuffers
     credentialPublicKey: Buffer.from(device.credentialPublicKey), // JSON.parse does not recursively resolve ArrayBuffers
     counter: device.counter,

@@ -11,18 +11,21 @@ provider:
   runtime: nodejs18.x
   region: us-east-2
 
+package:
+  excludeDevDependencies: false
+
 functions:
   preSignUp:
-    handler: functions/pre-sign-up.handler
+    handler: ./functions/pre-sign-up.handler
 
   defineAuthChallenge:
-    handler: functions/define-auth-challenge.handler
+    handler: ./functions/define-auth-challenge.handler
 
   createAuthChallenge:
-    handler: functions/create-auth-challenge.handler
+    handler: ./functions/create-auth-challenge.handler
 
   verifyAuthChallengeResponse:
-    handler: functions/verify-auth-challenge-response.handler
+    handler: ./functions/verify-auth-challenge-response.handler
     iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
     iamRoleStatements:
       - Effect: Allow

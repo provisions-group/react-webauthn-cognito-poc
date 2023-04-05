@@ -12,6 +12,7 @@ import {
 import { Context, Callback } from "aws-lambda";
 import { CognitoCreateAuthEvent, Authenticator } from "../local-types";
 import { Buffer } from "buffer";
+import * as util from "util";
 
 export const handler = async (
   event: CognitoCreateAuthEvent,
@@ -36,6 +37,10 @@ export const handler = async (
 
     event.response.publicChallengeParameters = {
       options: JSON.stringify(options),
+      //TODO: testing
+      devices: hasRegisteredDevice(event)
+        ? JSON.stringify(parseDevices(event))
+        : "none", // testing
       hasRegisteredDevice: `${hasRegisteredDevice(event)}`,
       email: event.request.userAttributes.email,
     };
@@ -89,11 +94,12 @@ async function generateDeviceAuthenticationOptions(
 
   const opts: GenerateAuthenticationOptionsOpts = {
     timeout: 60000,
-    allowCredentials: devices.map((dev) => ({
-      id: dev.credentialID,
-      type: "public-key",
-      transports: dev.transports,
-    })),
+    // allowCredentials: devices.map((dev) => ({
+    //   id: dev.credentialID,
+    //   type: "public-key",
+    //   transports: dev.transports,
+    // })),
+    allowCredentials: devices,
     userVerification: "required",
     rpID: "localhost",
   };
@@ -119,11 +125,12 @@ async function generateDeviceRegistrationOptions(
      * the browser if it's asked to perform registration when one of these ID's already resides
      * on it.
      */
-    excludeCredentials: devices.map((dev) => ({
-      id: dev.credentialID,
-      type: "public-key",
-      transports: dev.transports,
-    })),
+    // excludeCredentials: devices.map((dev) => ({
+    //   id: dev.credentialID,
+    //   type: "public-key",
+    //   transports: dev.transports,
+    // })),
+    excludeCredentials: devices,
     authenticatorSelection: {
       residentKey: "discouraged",
     },
@@ -147,10 +154,35 @@ function parseDevices(event: CognitoCreateAuthEvent): Authenticator[] {
 
   const devices: Authenticator[] = JSON.parse(devicesString);
 
-  return devices.map((device) => ({
-    credentialID: Buffer.from(device.credentialID), // JSON.parse does not recursively resolve ArrayBuffers
-    credentialPublicKey: Buffer.from(device.credentialPublicKey), // JSON.parse does not recursively resolve ArrayBuffers
-    counter: device.counter,
-    transports: device.transports || [],
-  }));
+  return devices.map((device) => {
+    const encoder = new util.TextEncoder();
+
+    let credentialIDuint8Array = new Uint8Array(32);
+    let credentialID = device.credentialID;
+
+    encoder.encodeInto(JSON.stringify(credentialID), credentialIDuint8Array);
+
+    let credentialPublicKeyuint8Array = new Uint8Array(32);
+    let credentialPublicKey = device.credentialPublicKey;
+
+    encoder.encodeInto(
+      JSON.stringify(credentialPublicKey),
+      credentialPublicKeyuint8Array
+    );
+
+    return {
+      // credentialID: Buffer.from(device.credentialID), // JSON.parse does not recursively resolve ArrayBuffers
+      // credentialID: Buffer.from(new Uint8Array(device.credentialID)),
+      id: credentialID,
+      credentialID: credentialID,
+      // credentialPublicKey: Buffer.from(device.credentialPublicKey), // JSON.parse does not recursively resolve ArrayBuffers
+      // credentialPublicKey: Buffer.from(
+      //   new Uint8Array(device.credentialPublicKey)
+      // ),
+      type: "public-key",
+      credentialPublicKey: credentialPublicKey,
+      counter: device.counter,
+      transports: device.transports || [],
+    };
+  });
 }

@@ -97,6 +97,8 @@ export interface CognitoVerifyAuthEvent {
 
 // https://simplewebauthn.dev/docs/packages/server#installing
 export type Authenticator = {
+  id: Uint8Array; // Buffer; // TODO: testing
+  type: "public-key"; // TODO: testing
   credentialID: Uint8Array; // Buffer;
   credentialPublicKey: Uint8Array; // Buffer;
   counter: number;
