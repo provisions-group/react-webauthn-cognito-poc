@@ -7,6 +7,7 @@ import {
 import { fakeAuthProvider } from "../auth";
 import { Amplify, Auth } from "aws-amplify";
 import { AwsConfigAuth } from "../auth.config";
+import base64 from "@hexagon/base64";
 
 export interface AuthContextType {
   user: any;
@@ -95,15 +96,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const cognitoUser = await Auth.signIn(email);
     console.log(cognitoUser);
 
-    // TODO: temp
-    const options = parseWebAuthnOptions(cognitoUser);
-    options.allowCredentials[0].id = options.allowCredentials[0].credentialID;
-    console.log("authentication options:", options);
+    console.log(
+      "parseWebAuthnOptions(cognitoUser):",
+      parseWebAuthnOptions(cognitoUser)
+    );
 
-    const authenticationResponse = await startAuthentication(options);
-    // const authenticationResponse = await startAuthentication(
-    //   parseWebAuthnOptions(cognitoUser)
-    // );
+    const authenticationResponse = await startAuthentication(
+      parseWebAuthnOptions(cognitoUser)
+    );
 
     console.log("authenticationResponse:", authenticationResponse);
 
@@ -141,7 +141,17 @@ const parseWebAuthnOptions = (cognitoUser: any) => {
 
   const optionsString = cognitoUser.challengeParam.options;
 
-  return JSON.parse(optionsString);
+  // return JSON.parse(optionsString);
+  const options = JSON.parse(optionsString);
+
+  // for (let i = 0; i < options.allowCredentials.length; i++) {
+  //   options.allowCredentials[i].id = coerceToArrayBuffer(
+  //     options.allowCredentials[i].id,
+  //     "id"
+  //   );
+  // }
+
+  return options;
 };
 
 export function useAuth() {
@@ -173,3 +183,53 @@ export const Unauthenticated = ({
     </AuthContext.Consumer>
   );
 };
+
+function coerceToArrayBuffer(buf: any, name: string) {
+  if (!name) {
+    throw new TypeError("name not specified in coerceToArrayBuffer");
+  }
+
+  // Handle empty strings
+  if (typeof buf === "string" && buf === "") {
+    buf = new Uint8Array(0);
+
+    // Handle base64url and base64 strings
+  } else if (typeof buf === "string") {
+    // base64 to base64url
+    buf = buf.replace(/\+/g, "-").replace(/\//g, "_").replace("=", "");
+    // base64 to Buffer
+    buf = base64.toArrayBuffer(buf, true);
+  }
+
+  // Extract typed array from Array
+  if (Array.isArray(buf)) {
+    buf = new Uint8Array(buf);
+  }
+
+  // Extract ArrayBuffer from Node buffer
+  if (typeof Buffer !== "undefined" && buf instanceof Buffer) {
+    buf = new Uint8Array(buf);
+    buf = buf.buffer;
+  }
+
+  // Extract arraybuffer from TypedArray
+  if (buf instanceof Uint8Array) {
+    // buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
+
+    // buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
+
+    // trying this first.
+    buf = buf.slice(0, buf.byteLength).buffer;
+    // if it doesn't work, try this:
+
+    // const slicedUint8Array = new Uint8Array(buf.buffer);
+    // const arrayBuffer = slicedUint8Array.buffer;
+  }
+
+  // error if none of the above worked
+  if (!(buf instanceof ArrayBuffer)) {
+    throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
+  }
+
+  return buf;
+}

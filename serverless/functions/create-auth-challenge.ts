@@ -13,6 +13,7 @@ import { Context, Callback } from "aws-lambda";
 import { CognitoCreateAuthEvent, Authenticator } from "../local-types";
 import { Buffer } from "buffer";
 import * as util from "util";
+import base64 from "@hexagon/base64";
 
 export const handler = async (
   event: CognitoCreateAuthEvent,
@@ -148,84 +149,140 @@ function hasRegisteredDevice(event: CognitoCreateAuthEvent) {
   return devices.length > 0;
 }
 
+// function parseDevices(event: CognitoCreateAuthEvent): Authenticator[] {
+//   const devicesString = event.request.userAttributes["custom:devices"];
+//   if (!devicesString) return [];
+
+//   const devices: Authenticator[] = JSON.parse(devicesString);
+
+//   return devices.map((device) => {
+//     const encoder = new util.TextEncoder();
+
+//     let credentialIDuint8Array = new Uint8Array(32);
+//     let credentialID = device.credentialID;
+
+//     encoder.encodeInto(JSON.stringify(credentialID), credentialIDuint8Array);
+
+//     let credentialPublicKeyuint8Array = new Uint8Array(32);
+//     let credentialPublicKey = device.credentialPublicKey;
+
+//     encoder.encodeInto(
+//       JSON.stringify(credentialPublicKey),
+//       credentialPublicKeyuint8Array
+//     );
+
+//     return {
+//       // credentialID: Buffer.from(device.credentialID), // JSON.parse does not recursively resolve ArrayBuffers
+//       // credentialID: Buffer.from(new Uint8Array(device.credentialID)),
+//       id: credentialID,
+//       credentialID: credentialID,
+//       // credentialPublicKey: Buffer.from(device.credentialPublicKey), // JSON.parse does not recursively resolve ArrayBuffers
+//       // credentialPublicKey: Buffer.from(
+//       //   new Uint8Array(device.credentialPublicKey)
+//       // ),
+//       type: "public-key",
+//       credentialPublicKey: credentialPublicKey,
+//       counter: device.counter,
+//       transports: device.transports || [],
+//     };
+//   });
+// }
+
 function parseDevices(event: CognitoCreateAuthEvent): Authenticator[] {
   const devicesString = event.request.userAttributes["custom:devices"];
   if (!devicesString) return [];
 
   const devices: Authenticator[] = JSON.parse(devicesString);
 
-  return devices.map((device) => {
-    const encoder = new util.TextEncoder();
-
-    let credentialIDuint8Array = new Uint8Array(32);
-    let credentialID = device.credentialID;
-
-    encoder.encodeInto(JSON.stringify(credentialID), credentialIDuint8Array);
-
-    let credentialPublicKeyuint8Array = new Uint8Array(32);
-    let credentialPublicKey = device.credentialPublicKey;
-
-    encoder.encodeInto(
-      JSON.stringify(credentialPublicKey),
-      credentialPublicKeyuint8Array
-    );
-
-    return {
-      // credentialID: Buffer.from(device.credentialID), // JSON.parse does not recursively resolve ArrayBuffers
-      // credentialID: Buffer.from(new Uint8Array(device.credentialID)),
-      id: credentialID,
-      credentialID: credentialID,
-      // credentialPublicKey: Buffer.from(device.credentialPublicKey), // JSON.parse does not recursively resolve ArrayBuffers
-      // credentialPublicKey: Buffer.from(
-      //   new Uint8Array(device.credentialPublicKey)
-      // ),
-      type: "public-key",
-      credentialPublicKey: credentialPublicKey,
-      counter: device.counter,
-      transports: device.transports || [],
-    };
-  });
+  return devices.map((device) => ({
+    id: coerceToUint8Array(device.credentialID, "id"),
+    type: "public-key",
+    credentialID: coerceToUint8Array(device.credentialID, "id"), // JSON.parse does not recursively resolve ArrayBuffers
+    credentialPublicKey: coerceToUint8Array(device.credentialPublicKey, "key"), // JSON.parse does not recursively resolve ArrayBuffers
+    counter: device.counter,
+    transports: device.transports || [],
+  }));
 }
 
 //TODO: you are here
 
-// function coerceToArrayBuffer(buf, name) {
-//   if (!name) {
-//     throw new TypeError("name not specified in coerceToArrayBuffer");
-//   }
+function coerceToUint8Array(buf, name) {
+  const arrayBuf = coerceToArrayBuffer(buf, name);
+  return new Uint8Array(arrayBuf);
+}
 
-//   // Handle empty strings
-//   if (typeof buf === "string" && buf === "") {
-//     buf = new Uint8Array(0);
+//TODO: you are here
 
-//     // Handle base64url and base64 strings
-//   } else if (typeof buf === "string") {
-//     // base64 to base64url
-//     buf = buf.replace(/\+/g, "-").replace(/\//g, "_").replace("=", "");
-//     // base64 to Buffer
-//     buf = tools.base64.toArrayBuffer(buf, true);
-//   }
+function coerceToArrayBuffer(buf, name) {
+  if (!name) {
+    throw new TypeError("name not specified in coerceToArrayBuffer");
+  }
 
-//   // Extract typed array from Array
-//   if (Array.isArray(buf)) {
-//     buf = new Uint8Array(buf);
-//   }
+  // Handle empty strings
+  if (typeof buf === "string" && buf === "") {
+    buf = new Uint8Array(0);
 
-//   // Extract ArrayBuffer from Node buffer
-//   if (typeof Buffer !== "undefined" && buf instanceof Buffer) {
-//     buf = new Uint8Array(buf);
-//     buf = buf.buffer;
-//   }
+    // Handle base64url and base64 strings
+  } else if (typeof buf === "string") {
+    // base64 to base64url
+    buf = buf.replace(/\+/g, "-").replace(/\//g, "_").replace("=", "");
+    // base64 to Buffer
+    buf = base64.toArrayBuffer(buf, true);
+  }
 
-//   // Extract arraybuffer from TypedArray
-//   if (buf instanceof Uint8Array) {
-//     buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
-//   }
+  // Extract typed array from Array
+  if (Array.isArray(buf)) {
+    buf = new Uint8Array(buf);
+  }
 
-//   // error if none of the above worked
-//   if (!(buf instanceof ArrayBuffer)) {
-//     throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
-//   }
+  // Extract ArrayBuffer from Node buffer
+  if (typeof Buffer !== "undefined" && buf instanceof Buffer) {
+    buf = new Uint8Array(buf);
+    buf = buf.buffer;
+  }
 
-//   return buf;
-// }
+  // Extract arraybuffer from TypedArray
+  if (buf instanceof Uint8Array) {
+    // buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
+
+    // buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
+
+    // trying this first.
+    buf = buf.slice(0, buf.byteLength).buffer;
+    // if it doesn't work, try this:
+
+    // const slicedUint8Array = new Uint8Array(buf.buffer);
+    // const arrayBuffer = slicedUint8Array.buffer;
+  }
+
+  // error if none of the above worked
+  if (!(buf instanceof ArrayBuffer)) {
+    throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
+  }
+
+  return buf;
+}
+
+function coerceToBase64Url(thing, name) {
+  if (!name) {
+    throw new TypeError("name not specified in coerceToBase64");
+  }
+
+  if (typeof thing === "string") {
+    // Convert from base64 to base64url
+    thing = thing
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/={0,2}$/g, "");
+  }
+
+  if (typeof thing !== "string") {
+    try {
+      thing = base64.fromArrayBuffer(coerceToArrayBuffer(thing, name), true);
+    } catch (_err) {
+      throw new Error(`could not coerce '${name}' to string`);
+    }
+  }
+
+  return thing;
+}
