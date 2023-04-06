@@ -22,7 +22,6 @@ export const handler = async (
 ) => {
   // RegistrationResponseJSON
   const body = JSON.parse(event.request.challengeAnswer);
-  const expectedAnswer = event?.request?.privateChallengeParameters?.challenge;
   const port = 5173;
 
   if (hasRegisteredDevice(event)) {
@@ -30,6 +29,8 @@ export const handler = async (
     // currently only allowing one device
     const device = devices[0];
 
+    const expectedAnswer =
+      event?.request?.privateChallengeParameters?.assertionChallenge;
     const opts: VerifyAuthenticationResponseOpts = {
       response: body,
       expectedChallenge: `${expectedAnswer}`,
@@ -50,6 +51,9 @@ export const handler = async (
       event.response.answerCorrect = false;
     }
   } else {
+    const expectedAnswer =
+      event?.request?.privateChallengeParameters?.attestationChallenge;
+
     const opts: VerifyRegistrationResponseOpts = {
       response: body,
       expectedChallenge: `${expectedAnswer}`,

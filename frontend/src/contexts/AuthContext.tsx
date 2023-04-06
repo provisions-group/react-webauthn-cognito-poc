@@ -77,11 +77,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUpWebAuthn = async (email: string) => {
     configureFlow("CUSTOM_AUTH");
 
-    const unauthenticatedUser = await Auth.signIn(email);
-
     try {
+      const unauthenticatedUser = await Auth.signIn(email);
+
       const registrationResponse = await startRegistration(
-        parseWebAuthnOptions(unauthenticatedUser)
+        JSON.parse(unauthenticatedUser.challengeParam.attestationChallenge)
       );
 
       const cognitoUser = await Auth.sendCustomChallengeAnswer(
@@ -99,11 +99,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWebAuthn = async (email: string) => {
     configureFlow("CUSTOM_AUTH");
 
-    const unauthenticatedUser = await Auth.signIn(email);
-
     try {
+      const unauthenticatedUser = await Auth.signIn(email);
+
       const authenticationResponse = await startAuthentication(
-        parseWebAuthnOptions(unauthenticatedUser)
+        JSON.parse(unauthenticatedUser.challengeParam.assertionChallenge)
       );
 
       const cognitoUser = await Auth.sendCustomChallengeAnswer(
@@ -136,14 +136,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
-
-const parseWebAuthnOptions = (cognitoUser: any) => {
-  if (!cognitoUser) return null;
-
-  const optionsString = cognitoUser.challengeParam.options;
-
-  return JSON.parse(optionsString);
-};
 
 export function useAuth() {
   return React.useContext(AuthContext);

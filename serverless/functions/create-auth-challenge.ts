@@ -4,10 +4,6 @@ import {
   GenerateRegistrationOptionsOpts,
   GenerateAuthenticationOptionsOpts,
 } from "@simplewebauthn/server";
-import {
-  PublicKeyCredentialCreationOptionsJSON,
-  PublicKeyCredentialRequestOptionsJSON,
-} from "@simplewebauthn/typescript-types";
 
 import { Context, Callback } from "aws-lambda";
 import { CognitoCreateAuthEvent } from "../local-types";
@@ -21,28 +17,26 @@ export const handler = async (
   event.response.publicChallengeParameters = {};
   event.response.privateChallengeParameters = {};
 
-  let options:
-    | PublicKeyCredentialCreationOptionsJSON
-    | PublicKeyCredentialRequestOptionsJSON;
-
   if (!event.request.session || !event.request.session.length) {
-    // new auth session
-
+    // If the user already has authenticators registered, then let's offer an assertion challenge along with our attestation challenge
     if (hasRegisteredDevice(event)) {
-      options = await generateDeviceAuthenticationOptions(event);
-    } else {
-      options = await generateDeviceRegistrationOptions(event);
+      const options = await generateDeviceAuthenticationOptions(event);
+      event.response.publicChallengeParameters = {
+        assertionChallenge: JSON.stringify(options),
+      };
+
+      event.response.privateChallengeParameters = {
+        assertionChallenge: options.challenge,
+      };
     }
 
-    event.response.publicChallengeParameters = {
-      options: JSON.stringify(options),
-      hasRegisteredDevice: `${hasRegisteredDevice(event)}`,
-      email: event.request.userAttributes.email,
-    };
+    // Always provide an attestation challenge, as there is no-way using our approach to Cognito CUSTOM_AUTH to differentiate between registration/auth
+    const options = await generateDeviceRegistrationOptions(event);
 
-    event.response.privateChallengeParameters = {
-      challenge: options.challenge,
-    };
+    event.response.publicChallengeParameters["attestationChallenge"] =
+      JSON.stringify(options);
+    event.response.privateChallengeParameters["attestationChallenge"] =
+      options.challenge;
   }
 
   callback(null, event);
