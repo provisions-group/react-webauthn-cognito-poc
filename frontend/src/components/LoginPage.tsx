@@ -1,9 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function LoginPage() {
-  const { signUpWebAuthn, signInWebAuthn, signIn, signUp } = useAuth();
+  const { signUpWebAuthn, signInWebAuthn, signIn, signUp, getCurrentSession } =
+    useAuth();
+
+  useEffect(() => {
+    getCurrentSession();
+  }, []);
 
   const {
     control,

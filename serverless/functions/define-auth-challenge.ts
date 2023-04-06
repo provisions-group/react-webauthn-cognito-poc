@@ -1,5 +1,3 @@
-// const _ = require('lodash')
-
 import { Context, Callback } from "aws-lambda";
 import { CognitoDefineAuthEvent } from "../local-types";
 import * as _ from "lodash";
