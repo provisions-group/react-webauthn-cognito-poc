@@ -97,11 +97,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // TODO: temp
     const options = parseWebAuthnOptions(cognitoUser);
+    options.allowCredentials[0].id = options.allowCredentials[0].credentialID;
     console.log("authentication options:", options);
 
-    const authenticationResponse = await startAuthentication(
-      parseWebAuthnOptions(cognitoUser)
-    );
+    const authenticationResponse = await startAuthentication(options);
+    // const authenticationResponse = await startAuthentication(
+    //   parseWebAuthnOptions(cognitoUser)
+    // );
 
     console.log("authenticationResponse:", authenticationResponse);
 

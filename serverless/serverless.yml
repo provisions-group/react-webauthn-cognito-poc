@@ -3,13 +3,18 @@ service: passwordless-otp-cognito-demo
 frameworkVersion: "3"
 
 plugins:
-  - serverless-plugin-typescript
+  # - serverless-plugin-typescript
+  - serverless-webpack
   - serverless-iam-roles-per-function
 
 provider:
   name: aws
   runtime: nodejs18.x
   region: us-east-2
+
+custom:
+  webpack:
+    includeModules: true
 
 package:
   excludeDevDependencies: false

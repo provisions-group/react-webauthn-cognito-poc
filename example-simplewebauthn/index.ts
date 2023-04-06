@@ -180,6 +180,8 @@ app.post("/verify-registration", async (req, res) => {
       requireUserVerification: true,
     };
     verification = await verifyRegistrationResponse(opts);
+
+    console.log("verifyRegistrationResponse:", verification);
   } catch (error) {
     const _error = error as Error;
     console.error(_error);

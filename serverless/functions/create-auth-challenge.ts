@@ -186,3 +186,46 @@ function parseDevices(event: CognitoCreateAuthEvent): Authenticator[] {
     };
   });
 }
+
+//TODO: you are here
+
+// function coerceToArrayBuffer(buf, name) {
+//   if (!name) {
+//     throw new TypeError("name not specified in coerceToArrayBuffer");
+//   }
+
+//   // Handle empty strings
+//   if (typeof buf === "string" && buf === "") {
+//     buf = new Uint8Array(0);
+
+//     // Handle base64url and base64 strings
+//   } else if (typeof buf === "string") {
+//     // base64 to base64url
+//     buf = buf.replace(/\+/g, "-").replace(/\//g, "_").replace("=", "");
+//     // base64 to Buffer
+//     buf = tools.base64.toArrayBuffer(buf, true);
+//   }
+
+//   // Extract typed array from Array
+//   if (Array.isArray(buf)) {
+//     buf = new Uint8Array(buf);
+//   }
+
+//   // Extract ArrayBuffer from Node buffer
+//   if (typeof Buffer !== "undefined" && buf instanceof Buffer) {
+//     buf = new Uint8Array(buf);
+//     buf = buf.buffer;
+//   }
+
+//   // Extract arraybuffer from TypedArray
+//   if (buf instanceof Uint8Array) {
+//     buf = buf.slice(0, buf.byteLength, buf.buffer.byteOffset).buffer;
+//   }
+
+//   // error if none of the above worked
+//   if (!(buf instanceof ArrayBuffer)) {
+//     throw new TypeError(`could not coerce '${name}' to ArrayBuffer`);
+//   }
+
+//   return buf;
+// }
