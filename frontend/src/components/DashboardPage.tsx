@@ -15,7 +15,7 @@ function classNames(...classes: string[]) {
 
 export function DashboardPage() {
   const { user } = useAuth();
-  const username = user?.username || "";
+  const username = user?.attributes?.email || "";
 
   const projects = [
     {
@@ -73,7 +73,7 @@ export function DashboardPage() {
                         </svg>
                       </div>
                       <div className="space-y-1">
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className="text-sm font-medium text-gray-900 break-all">
                           {username}
                         </div>
                         <a

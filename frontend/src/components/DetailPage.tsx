@@ -3,7 +3,7 @@ import { useAuth } from "../contexts/AuthContext";
 
 export default function DetailPage() {
   const { user } = useAuth();
-  const username = user?.username || "";
+  const username = user?.attributes?.email || "";
   return (
     <div className="overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6">

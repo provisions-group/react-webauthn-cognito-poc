@@ -39,18 +39,22 @@ export default function PlainLoginPage() {
   }, [error]);
 
   const onSignUpWebAuthn = async (form: any) => {
+    setErrorMessage("");
     await signUpWebAuthn(form.email);
   };
 
   const onSignInWebAuthn = async (form: any) => {
+    setErrorMessage("");
     await signInWebAuthn(form.email);
   };
 
   const onSignIn = async (form: any) => {
+    setErrorMessage("");
     await signIn(form);
   };
 
   const onSignUp = async (form: any) => {
+    setErrorMessage("");
     await signUp(form);
   };
 
