@@ -22,7 +22,6 @@ export const handler = async (
 ) => {
   // RegistrationResponseJSON
   const body = JSON.parse(event.request.challengeAnswer);
-  const port = 5173;
 
   if (hasRegisteredDevice(event)) {
     const devices = parseDevices(event);
@@ -34,8 +33,8 @@ export const handler = async (
     const opts: VerifyAuthenticationResponseOpts = {
       response: body,
       expectedChallenge: `${expectedAnswer}`,
-      expectedOrigin: `http://localhost:${port}`,
-      expectedRPID: "localhost",
+      expectedOrigin: process.env.RELYING_PARTY_ORIGIN || "",
+      expectedRPID: process.env.RELYING_PARTY_ID || "",
       authenticator: device,
       requireUserVerification: true,
     };
@@ -57,8 +56,8 @@ export const handler = async (
     const opts: VerifyRegistrationResponseOpts = {
       response: body,
       expectedChallenge: `${expectedAnswer}`,
-      expectedOrigin: `http://localhost:${port}`,
-      expectedRPID: "localhost",
+      expectedOrigin: process.env.RELYING_PARTY_ORIGIN || "",
+      expectedRPID: process.env.RELYING_PARTY_ID || "",
       requireUserVerification: true,
     };
 

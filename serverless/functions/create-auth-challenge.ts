@@ -55,7 +55,7 @@ async function generateDeviceAuthenticationOptions(
       transports: dev.transports,
     })),
     userVerification: "required",
-    rpID: "localhost",
+    rpID: process.env.RELYING_PARTY_ID || "",
   };
 
   return generateAuthenticationOptions(opts);
@@ -68,7 +68,7 @@ async function generateDeviceRegistrationOptions(
 
   const opts: GenerateRegistrationOptionsOpts = {
     rpName: "SimpleWebAuthn Example",
-    rpID: "localhost",
+    rpID: process.env.RELYING_PARTY_ID || "",
     userID: event.request.userAttributes.email,
     userName: event.request.userAttributes.email,
     timeout: 60000,

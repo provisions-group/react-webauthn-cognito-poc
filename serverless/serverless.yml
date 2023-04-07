@@ -3,9 +3,9 @@ service: passwordless-otp-cognito-demo
 frameworkVersion: "3"
 
 plugins:
-  # - serverless-plugin-typescript
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -31,6 +31,7 @@ functions:
 
   verifyAuthChallengeResponse:
     handler: ./functions/verify-auth-challenge-response.handler
+    #Disable the following when setting this up.  Enable once you can add the correct resource arn
     iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
     iamRoleStatements:
       - Effect: Allow
