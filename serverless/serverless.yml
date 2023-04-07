@@ -81,7 +81,7 @@ resources:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_CUSTOM_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
-        PreventUserExistenceErrors: ENABLED
+        # PreventUserExistenceErrors: ENABLED
 
     UserPoolPreSignUpLambdaPermission:
       Type: AWS::Lambda::Permission

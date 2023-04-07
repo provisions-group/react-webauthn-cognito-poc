@@ -10,11 +10,14 @@ function classNames(...classes: string[]) {
 }
 
 export function Header() {
-  const { signOut } = useAuth();
+  const { signOut, disableWebAuthn } = useAuth();
   const navigate = useNavigate();
 
   const onSignout = async () => {
     await signOut();
+  };
+  const onDisableWebAutnn = async () => {
+    await disableWebAuthn();
   };
 
   const navigateToHome = () => {
@@ -26,7 +29,7 @@ export function Header() {
 
   const userNavigation = [
     // { name: "Your Profile", href: "#" },
-    // { name: "Settings", href: "#" },
+    { name: "Disable Biometric Login", href: onDisableWebAutnn },
     { name: "Sign out", href: onSignout },
   ];
 

@@ -7,6 +7,7 @@ import {
   Unauthenticated,
 } from "./contexts/AuthContext";
 import LoginPage from "./components/LoginPage";
+import PlainLoginPage from "./components/PlainLoginPage";
 import DetailPage from "./components/DetailPage";
 import { PageContainer } from "./components/PageContainer";
 
@@ -25,7 +26,10 @@ function App() {
 
           <Unauthenticated>
             <Routes>
+              {/* If you want to see the whole flow on one page, use the PlainLoginPage instead of the LoginPage */}
+              {/* <Route path="/login" element={<PlainLoginPage />} /> */}
               <Route path="/login" element={<LoginPage />} />
+
               <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </Unauthenticated>
