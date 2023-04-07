@@ -67,6 +67,10 @@ resources:
             Name: email
             StringAttributeConstraints:
               MinLength: "8"
+          - AttributeDataType: String
+            Mutable: true
+            Required: false
+            Name: devices
         LambdaConfig:
           PreSignUp: !GetAtt PreSignUpLambdaFunction.Arn
           DefineAuthChallenge: !GetAtt DefineAuthChallengeLambdaFunction.Arn

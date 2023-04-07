@@ -26,3 +26,5 @@ Install the serverless cli
 
 - run `npm ci` from the `/serverless` directory
 - run `npx sls deploy` from the `/serverless` directory
+
+Potentially have to add Custom Attribute field "devices" manually
