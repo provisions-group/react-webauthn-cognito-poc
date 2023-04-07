@@ -1,12 +1,15 @@
 import React from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Header } from "./Header";
+import { Toaster } from "react-hot-toast";
 
 export function PageContainer({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
 
   return (
     <>
+      <Toaster />
+
       {!user && <> {children} </>}
 
       {!!user && (

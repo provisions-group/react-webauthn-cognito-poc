@@ -7,37 +7,41 @@ import {
   RectangleStackIcon,
   StarIcon,
 } from "@heroicons/react/20/solid";
-
-const projects = [
-  {
-    name: "Workcation",
-    href: "#",
-    siteHref: "#",
-    repoHref: "#",
-    repo: "debbielewis/workcation",
-    tech: "Laravel",
-    lastDeploy: "3h ago",
-    location: "United states",
-    starred: true,
-    active: true,
-  },
-  // More projects...
-];
-const activityItems = [
-  {
-    project: "Workcation",
-    commit: "2d89f0c8",
-    environment: "production",
-    time: "1h",
-  },
-  // More items...
-];
+import { useAuth } from "../contexts/AuthContext";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 export function DashboardPage() {
+  const { user } = useAuth();
+  const username = user?.username || "";
+
+  const projects = [
+    {
+      name: "Workcation",
+      href: "#",
+      siteHref: "#",
+      repoHref: "#",
+      repo: `${username}/workcation`,
+      tech: "Laravel",
+      lastDeploy: "3h ago",
+      location: "United states",
+      starred: true,
+      active: true,
+    },
+    // More projects...
+  ];
+  const activityItems = [
+    {
+      project: "Workcation",
+      commit: "2d89f0c8",
+      environment: "production",
+      time: "1h",
+    },
+    // More items...
+  ];
+
   return (
     <>
       {/* 3 column wrapper */}
@@ -61,7 +65,7 @@ export function DashboardPage() {
                       </div>
                       <div className="space-y-1">
                         <div className="text-sm font-medium text-gray-900">
-                          Debbie Lewis
+                          {username}
                         </div>
                         <a
                           href="#"
@@ -80,7 +84,7 @@ export function DashboardPage() {
                             />
                           </svg>
                           <span className="text-sm font-medium text-gray-500 group-hover:text-gray-900">
-                            debbielewis
+                            {username && username.split("@")[0]}
                           </span>
                         </a>
                       </div>

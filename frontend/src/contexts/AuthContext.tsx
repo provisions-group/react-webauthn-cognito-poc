@@ -6,6 +6,7 @@ import {
 
 import { Amplify, Auth } from "aws-amplify";
 import { AwsConfigAuth } from "../auth.config";
+import { toast } from "react-hot-toast";
 
 export type UserType =
   | "NO_USER"
@@ -44,6 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const user = await Auth.currentAuthenticatedUser();
+      console.log("user:", user);
       setUser(user);
     } catch (error) {
       setUser(null);
@@ -81,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
       });
 
-      console.log(signInResult);
+      toast.success("Successfully registered user!");
     } catch (error: any) {
       setUser(null);
       setError(error.message);
@@ -100,6 +102,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const cognitoUser = await Auth.signIn(email, password);
       setUser(cognitoUser);
+      toast.success("Successfully signed in with password!");
     } catch (error: any) {
       setUser(null);
       setError(error.message);
@@ -122,7 +125,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         JSON.stringify(registrationResponse)
       );
 
-      // setUser(cognitoUser);
+      toast.success("Successfully registered biometric device!");
     } catch (error: any) {
       setUser(null);
       setError(error.message);
@@ -146,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       );
 
       setUser(cognitoUser);
+      toast.success("Successfully signed in with biometric login!");
     } catch (error: any) {
       setUser(null);
       setError(error.message);
@@ -156,11 +160,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     await Auth.signOut();
     setUser(null);
+    toast.success("Successfully signed out!");
   };
 
   // for the love of passwords
   const disableWebAuthn = async () => {
     await Auth.deleteUserAttributes(user, ["custom:devices"]);
+    toast.success("Successfully removed biometric device!");
   };
 
   const value = {
