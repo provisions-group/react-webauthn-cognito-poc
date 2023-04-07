@@ -33,7 +33,7 @@ export default function LoginPage() {
     "SIGNIN_BIOMETRIC",
   }
   const [step, setStep] = useState(Step.FIND_USER);
-  const [title, setTitle] = useState("Enter your email");
+  const [title, setTitle] = useState("Sign in to your account");
 
   const {
     control,
@@ -111,7 +111,7 @@ export default function LoginPage() {
 
   const onStartOver = () => {
     setStep(Step.FIND_USER); // to trigger the user to click "next" again.
-    setTitle("Enter your email");
+    setTitle("Sign in to your account");
     setValue("email", "");
     setValue("password", "");
     setValue("useBiometric", false);
@@ -156,7 +156,6 @@ export default function LoginPage() {
             alt="Provisions Group"
           />
           <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
-            {/* Sign in to your account */}
             {title}
           </h2>
         </div>
@@ -452,7 +451,7 @@ export default function LoginPage() {
             </div>
           )}
 
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-md">
           <div className="flex items-center justify-between">
             <div className="text-sm">
               <a

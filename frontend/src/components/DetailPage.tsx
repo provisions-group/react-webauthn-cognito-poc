@@ -1,6 +1,9 @@
 import { PaperClipIcon } from "@heroicons/react/20/solid";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function DetailPage() {
+  const { user } = useAuth();
+  const username = user?.username || "";
   return (
     <div className="overflow-hidden bg-white shadow sm:rounded-lg">
       <div className="px-4 py-5 sm:px-6">
@@ -14,8 +17,10 @@ export default function DetailPage() {
       <div className="border-t border-gray-200 px-4 py-5 sm:px-6">
         <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
           <div className="sm:col-span-1">
-            <dt className="text-sm font-medium text-gray-500">Full name</dt>
-            <dd className="mt-1 text-sm text-gray-900">Margot Foster</dd>
+            <dt className="text-sm font-medium text-gray-500">Name</dt>
+            <dd className="mt-1 text-sm text-gray-900">
+              {username && username.split("@")[0]}
+            </dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">
@@ -25,9 +30,7 @@ export default function DetailPage() {
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">Email address</dt>
-            <dd className="mt-1 text-sm text-gray-900">
-              margotfoster@example.com
-            </dd>
+            <dd className="mt-1 text-sm text-gray-900">{username}</dd>
           </div>
           <div className="sm:col-span-1">
             <dt className="text-sm font-medium text-gray-500">
