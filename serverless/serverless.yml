@@ -1,4 +1,4 @@
-service: passwordless-otp-cognito-demo
+service: webauthn-cognito-demo
 
 frameworkVersion: "3"
 
@@ -31,19 +31,18 @@ functions:
 
   verifyAuthChallengeResponse:
     handler: ./functions/verify-auth-challenge-response.handler
-    #Disable the following when setting this up.  Enable once you can add the correct resource arn
-    iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
-    iamRoleStatements:
-      - Effect: Allow
-        Action: cognito-idp:AdminUpdateUserAttributes
-        # You will need to paste in the correct resource arn after it is created
-        Resource: arn:aws:cognito-idp:us-east-2:298821895416:userpool/us-east-2_56O5hbcfY
-        # Causes circular reference
-        # Resource: !Sub arn:aws:cognito-idp:${AWS::Region}:${AWS::AccountId}:userpool/${PasswordlessOtpUserPool.Arn}
+    # Leave the following section commented out on the first deployment.
+    # Enable this section once you can add the created user pool resource arn
+    # iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
+    # iamRoleStatements:
+    #   - Effect: Allow
+    #     Action: cognito-idp:AdminUpdateUserAttributes
+    #     # Paste User Pool Resource ARN here
+    #     Resource: your-resource-arn
 
 resources:
   Resources:
-    PasswordlessOtpUserPool:
+    WebAuthnUserPool:
       Type: AWS::Cognito::UserPool
       Properties:
         UsernameConfiguration:
@@ -51,9 +50,6 @@ resources:
         UsernameAttributes:
           - email
         Policies:
-          # this is only to satisfy Cognito requirements
-          # we won't be using passwords, but we also don't
-          # want weak passwords in the system ;-)
           PasswordPolicy:
             MinimumLength: 8
             RequireLowercase: true
@@ -81,12 +77,11 @@ resources:
       Type: AWS::Cognito::UserPoolClient
       Properties:
         ClientName: web
-        UserPoolId: !Ref PasswordlessOtpUserPool
+        UserPoolId: !Ref WebAuthnUserPool
         ExplicitAuthFlows:
           - ALLOW_USER_SRP_AUTH
           - ALLOW_CUSTOM_AUTH
           - ALLOW_REFRESH_TOKEN_AUTH
-        # PreventUserExistenceErrors: ENABLED
 
     UserPoolPreSignUpLambdaPermission:
       Type: AWS::Lambda::Permission
@@ -94,7 +89,7 @@ resources:
         Action: lambda:invokeFunction
         Principal: cognito-idp.amazonaws.com
         FunctionName: !Ref PreSignUpLambdaFunction
-        SourceArn: !GetAtt PasswordlessOtpUserPool.Arn
+        SourceArn: !GetAtt WebAuthnUserPool.Arn
 
     UserPoolDefineAuthChallengeLambdaPermission:
       Type: AWS::Lambda::Permission
@@ -102,7 +97,7 @@ resources:
         Action: lambda:invokeFunction
         Principal: cognito-idp.amazonaws.com
         FunctionName: !Ref DefineAuthChallengeLambdaFunction
-        SourceArn: !GetAtt PasswordlessOtpUserPool.Arn
+        SourceArn: !GetAtt WebAuthnUserPool.Arn
 
     UserPoolCreateAuthChallengeLambdaPermission:
       Type: AWS::Lambda::Permission
@@ -110,7 +105,7 @@ resources:
         Action: lambda:invokeFunction
         Principal: cognito-idp.amazonaws.com
         FunctionName: !Ref CreateAuthChallengeLambdaFunction
-        SourceArn: !GetAtt PasswordlessOtpUserPool.Arn
+        SourceArn: !GetAtt WebAuthnUserPool.Arn
 
     UserPoolVerifyAuthChallengeResponseLambdaPermission:
       Type: AWS::Lambda::Permission
@@ -118,4 +113,4 @@ resources:
         Action: lambda:invokeFunction
         Principal: cognito-idp.amazonaws.com
         FunctionName: !Ref VerifyAuthChallengeResponseLambdaFunction
-        SourceArn: !GetAtt PasswordlessOtpUserPool.Arn
+        SourceArn: !GetAtt WebAuthnUserPool.Arn

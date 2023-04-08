@@ -1,6 +1,6 @@
 {
-  "name": "passwordless-otp-cognito-demo",
-  "description": "AWS Serverless Cognito Custom Auth Lambdas",
+  "name": "webauthn-cognito-demo",
+  "description": "AWS Serverless Cognito Custom Auth Lambdas for faciltating WebAuthn biometric login",
   "repository": "https://github.com/provisions-group/react-webauthn-cognito-poc",
   "keywords": [],
   "author": "Eric Palmieri",

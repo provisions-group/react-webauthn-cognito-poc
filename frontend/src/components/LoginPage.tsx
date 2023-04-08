@@ -122,6 +122,7 @@ export default function LoginPage() {
   };
 
   const onCheckForUser = async (form: any) => {
+    setErrorMessage("");
     const userType = await checkForUser(form.email);
 
     switch (userType) {
