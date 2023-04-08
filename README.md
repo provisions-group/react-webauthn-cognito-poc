@@ -1,20 +1,47 @@
 # react-webauthn-cognito-poc
 
-## Deploying the backend to AWS
+This project is an example of how to set up biometric login for web-based apps ([WebAuthn](https://webauthn.io/)) using [Amazon Cognito](https://aws.amazon.com/cognito/) as the identity provider. This project accomplishes this by leaning on [AWS Cognito custom authentication challenges](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-challenge.html) and the [SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn) library.
+
+For more information on how this works, here are some references:
+[https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/](https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/)
+[Getting Started with WebAuthn with Nick Steele](https://youtu.be/yccBhpdJjJc)
+
+This project takes inspiration from the following projects:
+
+- [https://github.com/MasterKale/SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn)
+- [https://github.com/aws-samples/webauthn-with-amazon-cognito](https://github.com/aws-samples/webauthn-with-amazon-cognito)
+- [https://github.com/lockdrop/cdk-serverless-cognito-fido2-webauthn](https://github.com/lockdrop/cdk-serverless-cognito-fido2-webauthn)
+- [https://github.com/webauthn-open-source/fido2-lib](https://github.com/webauthn-open-source/fido2-lib)
+
+The project uses the following libraries for handling the biometric login flow:
+
+- [https://github.com/MasterKale/SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn)
+- [https://github.com/feross/buffer](https://github.com/feross/buffer)
+- [https://github.com/Hexagon/base64](https://github.com/Hexagon/base64)
+
+## Running the project
+
+To run the project, make sure that you have an AWS account and have configured the serverless cli
 
 Create an AWS account if you don't already have one, and set up credentials to be used with Serverless
 [https://www.serverless.com/framework/docs/providers/aws/guide/credentials/](https://www.serverless.com/framework/docs/providers/aws/guide/credentials/)
 
-Install the serverless cli
+Install the serverless cli:
 `npm install -g serverless`
 
-Run `npm install` from the `/serverless` directory
+## Deploying the backend to AWS
 
-Run `sls deploy` from the `/serverless` directory
+### 1. Install and Initial Deploy
 
-Enable IAM role for VerifyAuthChallengeResponse Lambda Function:
+From the `/serverless` directory, run the following commands:
 
-Uncomment the section under the `verifyAuthChallengeResponse` function. Looks like this:
+`npm install`
+
+`sls deploy`
+
+### 2. Enable IAM role for VerifyAuthChallengeResponse Lambda Function
+
+In the `serverless.yml` file, uncomment the section under the `verifyAuthChallengeResponse` function. Looks like this:
 
 ```
 
@@ -34,6 +61,8 @@ Find the Cognito User Pool on AWS and copy the user pool's ARN. Paste it in the 
 
 > locate: 'Paste User Pool Resource ARN here'
 
+### 3. Configure the frontend
+
 Create a `.env` file in the `/frontend` directory and paste in this content:
 
 ```
@@ -45,21 +74,29 @@ VITE_AUTH_COOKIE_STORAGE_DOMAIN=localhost
 
 ```
 
-- Replace the values with your own. I've left in some fake ones as an example:
+> Replace the values with your own. I've left in some fake ones as an example.
 
 Add the `AWS Region`,`User Pool ID`, and `User Pool Web Client ID` to the created .env file in the `/frontend` directory
 
-## Run the frontend
+### 4. Run the frontend
 
-- run `npm install` from the `/frontend` directory
-- run `npm run dev` from the `/frontend` directory
+From the `/frontend` directory, run the following commands:
 
-## Removing backend
+`npm install`
+
+`npm run dev`
+
+## You did it! No more passwords!
+
+## Cleanup
+
+### 1. Removing backend
 
 run `sls remove`
 
 > If it fails to remove the stack, you might need to manually delete the S3 deployment bucket
 
-## Passkeys located here in Chrome:
+### 2. Delete created passkeys from browser
 
-chrome://settings/passkeys
+Passkeys located here in Chrome:
+`chrome://settings/passkeys`

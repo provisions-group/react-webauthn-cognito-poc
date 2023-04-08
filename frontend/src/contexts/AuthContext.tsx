@@ -33,6 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<any>(null);
   const [error, setError] = React.useState<any>(null);
 
+  // Switch auth flows: https://docs.amplify.aws/lib/auth/switch-auth/q/platform/js/
   const initFlow = (flow: "USER_SRP_AUTH" | "CUSTOM_AUTH") => {
     setError("");
     Amplify.configure({
