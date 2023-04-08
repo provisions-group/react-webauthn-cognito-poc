@@ -4,6 +4,10 @@ import { useAuth } from "../contexts/AuthContext";
 import Toggle from "./Toggle";
 import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import Spinner from "./Spinner";
+import EmailInput from "./EmailInput";
+import PasswordInput from "./PasswordInput";
+import UseBiometricInput from "./UseBiometricInput";
+import MainButton from "./MainButton";
 
 export default function LoginPage() {
   const [webAuthnSupported, setWebAuthnSupported] = useState(
@@ -35,13 +39,7 @@ export default function LoginPage() {
   const [step, setStep] = useState(Step.FIND_USER);
   const [title, setTitle] = useState("Sign in to your account");
 
-  const {
-    control,
-    setValue,
-    watch,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
+  const methods = useForm({
     mode: "onChange",
     defaultValues: {
       email: "",
@@ -50,6 +48,14 @@ export default function LoginPage() {
     },
     delayError: 200,
   });
+
+  const {
+    control,
+    setValue,
+    watch,
+    handleSubmit,
+    formState: { errors, isValid },
+  } = methods;
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -189,139 +195,22 @@ export default function LoginPage() {
 
                       {step == Step.FIND_USER && (
                         <>
-                          <div>
-                            <label
-                              htmlFor="email"
-                              className="block text-sm font-medium leading-6 text-gray-900"
-                            >
-                              Email address
-                            </label>
-                            <div className="mt-2">
-                              <Controller
-                                name="email"
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Email is required",
-                                  },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                  <input
-                                    value={value}
-                                    onChange={onChange}
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <EmailInput methods={methods} />
 
-                          <div>
-                            <button
-                              onClick={handleSubmit(
-                                onCheckForUser,
-                                onFormError
-                              )}
-                              type="button"
-                              className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
-                              Next
-                            </button>
-                          </div>
+                          <MainButton
+                            onClick={handleSubmit(onCheckForUser, onFormError)}
+                            title="Next"
+                          />
                         </>
                       )}
 
                       {step == Step.REGISTER_USER && (
                         <>
-                          <div>
-                            <label
-                              htmlFor="email"
-                              className="block text-sm font-medium leading-6 text-gray-900"
-                            >
-                              Email address
-                            </label>
-                            <div className="mt-2">
-                              <Controller
-                                name="email"
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Email is required",
-                                  },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                  <input
-                                    value={value}
-                                    onChange={onChange}
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label
-                              htmlFor="password"
-                              className="block text-sm font-medium leading-6 text-gray-900"
-                            >
-                              Password
-                            </label>
-                            <div className="mt-2">
-                              <Controller
-                                name="password"
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Password is required",
-                                  },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                  <input
-                                    value={value}
-                                    onChange={onChange}
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <EmailInput methods={methods} />
+                          <PasswordInput methods={methods} />
 
                           {webAuthnSupported && (
-                            <div>
-                              <div className="mt-2">
-                                <Controller
-                                  name="useBiometric"
-                                  control={control}
-                                  render={({ field: { onChange, value } }) => (
-                                    <Toggle
-                                      label="Use Biometric Login"
-                                      description="This browser supports WebAuthn"
-                                      onChange={onChange}
-                                      value={value}
-                                    />
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <UseBiometricInput methods={methods} />
                           )}
 
                           {!webAuthnSupported && (
@@ -335,103 +224,20 @@ export default function LoginPage() {
                             </div>
                           )}
 
-                          <div>
-                            <button
-                              onClick={handleSubmit(onSignUp, onFormError)}
-                              type="button"
-                              className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
-                              Sign up
-                            </button>
-                          </div>
+                          <MainButton
+                            onClick={handleSubmit(onSignUp, onFormError)}
+                            title="Sign up"
+                          />
                         </>
                       )}
 
                       {step == Step.SIGNIN_PASSWORD && (
                         <>
-                          <div>
-                            <label
-                              htmlFor="email"
-                              className="block text-sm font-medium leading-6 text-gray-900"
-                            >
-                              Email address
-                            </label>
-                            <div className="mt-2">
-                              <Controller
-                                name="email"
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Email is required",
-                                  },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                  <input
-                                    value={value}
-                                    onChange={onChange}
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
-
-                          <div>
-                            <label
-                              htmlFor="password"
-                              className="block text-sm font-medium leading-6 text-gray-900"
-                            >
-                              Password
-                            </label>
-                            <div className="mt-2">
-                              <Controller
-                                name="password"
-                                control={control}
-                                rules={{
-                                  required: {
-                                    value: true,
-                                    message: "Password is required",
-                                  },
-                                }}
-                                render={({ field: { onChange, value } }) => (
-                                  <input
-                                    value={value}
-                                    onChange={onChange}
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
+                          <EmailInput methods={methods} />
+                          <PasswordInput methods={methods} />
 
                           {webAuthnSupported && (
-                            <div>
-                              <div className="mt-2">
-                                <Controller
-                                  name="useBiometric"
-                                  control={control}
-                                  render={({ field: { onChange, value } }) => (
-                                    <Toggle
-                                      label="Use Biometric Login"
-                                      description="This browser supports WebAuthn"
-                                      onChange={onChange}
-                                      value={value}
-                                    />
-                                  )}
-                                />
-                              </div>
-                            </div>
+                            <UseBiometricInput methods={methods} />
                           )}
 
                           {!webAuthnSupported && (
@@ -445,15 +251,10 @@ export default function LoginPage() {
                             </div>
                           )}
 
-                          <div>
-                            <button
-                              onClick={handleSubmit(onSignIn, onFormError)}
-                              type="button"
-                              className="flex w-full justify-center rounded-md bg-indigo-600 py-2 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                            >
-                              Sign in
-                            </button>
-                          </div>
+                          <MainButton
+                            onClick={handleSubmit(onSignIn, onFormError)}
+                            title="Sign in"
+                          />
                         </>
                       )}
                     </form>
