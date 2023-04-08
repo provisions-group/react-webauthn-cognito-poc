@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useAuth } from "../contexts/AuthContext";
-import Toggle from "./Toggle";
 import { browserSupportsWebAuthn } from "@simplewebauthn/browser";
 import Spinner from "./Spinner";
 import EmailInput from "./EmailInput";
@@ -49,13 +48,7 @@ export default function LoginPage() {
     delayError: 200,
   });
 
-  const {
-    control,
-    setValue,
-    watch,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = methods;
+  const { setValue, watch, handleSubmit } = methods;
 
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -119,7 +112,7 @@ export default function LoginPage() {
   };
 
   const onStartOver = () => {
-    setStep(Step.FIND_USER); // to trigger the user to click "next" again.
+    setStep(Step.FIND_USER);
     setErrorMessage("");
     setTitle("Sign in to your account");
     setValue("email", "");
