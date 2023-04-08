@@ -3,8 +3,8 @@
 This project is an example of how to set up biometric login for web-based apps ([WebAuthn](https://webauthn.io/)) using [Amazon Cognito](https://aws.amazon.com/cognito/) as the identity provider. This project accomplishes this by leaning on [AWS Cognito custom authentication challenges](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-challenge.html) and the [SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn) library.
 
 For more information on how this works, here are some references:
-[https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/](https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/)
-[Getting Started with WebAuthn with Nick Steele](https://youtu.be/yccBhpdJjJc)
+- [https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/](https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/)
+- [Getting Started with WebAuthn with Nick Steele](https://youtu.be/yccBhpdJjJc)
 
 This project takes inspiration from the following projects:
 
