@@ -1,15 +1,5 @@
 # react-webauthn-cognito-poc
 
-## Installing dependencies
-
-- run `npm install` from the `/frontend` directory
-
-```
-
-## Running the frontend
-
-- run `npx npm run dev` from the `/frontend` directory
-
 ## Deploying the backend to AWS
 
 Create an AWS account if you don't already have one, and set up credentials to be used with Serverless
@@ -29,7 +19,14 @@ Uncomment the section under the `verifyAuthChallengeResponse` function. Looks li
 ```
 
 verifyAuthChallengeResponse:
-handler: ./functions/verify-auth-challenge-response.handler # Leave the following section commented out on the first deployment. # Enable this section once you can add the created user pool resource arn # iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes # iamRoleStatements: # - Effect: Allow # Action: cognito-idp:AdminUpdateUserAttributes # # Paste User Pool Resource ARN here # Resource: your-resource-arn
+handler: ./functions/verify-auth-challenge-response.handler
+# Leave the following section commented out on the first deployment.
+# Enable this section once you can add the created user pool resource arn
+# iamRoleStatementsName: verifyAuthChallengeRes-cognito-idp_AdminUpdateUserAttributes
+# iamRoleStatements:
+# - Effect: Allow # Action: cognito-idp:AdminUpdateUserAttributes
+# # Paste User Pool Resource ARN here
+# Resource: your-resource-arn
 
 ```
 
@@ -52,9 +49,13 @@ VITE_AUTH_COOKIE_STORAGE_DOMAIN=localhost
 
 Add the `AWS Region`,`User Pool ID`, and `User Pool Web Client ID` to the created .env file in the `/frontend` directory
 
+## Run the frontend
+
+- run `npm install` from the `/frontend` directory
+- run `npm run dev` from the `/frontend` directory
+
 ## Removing backend
 
 run `sls remove`
 
 > If it fails to remove the stack, you might need to manually delete the S3 deployment bucket
-```
