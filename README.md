@@ -59,3 +59,7 @@ Add the `AWS Region`,`User Pool ID`, and `User Pool Web Client ID` to the create
 run `sls remove`
 
 > If it fails to remove the stack, you might need to manually delete the S3 deployment bucket
+
+## Passkeys located here in Chrome:
+
+chrome://settings/passkeys
