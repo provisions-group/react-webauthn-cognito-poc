@@ -33,6 +33,15 @@ Install the serverless cli:
 
 ### 1. Install and Initial Deploy
 
+Create a `.env` file in the `/serverless` directory and paste in this content:
+
+```
+RELYING_PARTY_ORIGIN=http://localhost:5173
+RELYING_PARTY_ID=localhost
+```
+
+> These values should be set to the URL of the relying party site, since we're running the relying party locally (frontend project), these values above should be fine.
+
 From the `/serverless` directory, run the following commands:
 
 `npm install`
@@ -63,15 +72,13 @@ Find the Cognito User Pool on AWS and copy the user pool's ARN. Paste it in the 
 
 ### 3. Configure the frontend
 
-Create a `.env` file in the `/frontend` directory and paste in this content:
+Create a `.env.local` file in the `/frontend` directory and paste in this content:
 
 ```
-
 VITE_AUTH_REGION=us-east-2
 VITE_AUTH_USER_POOL_ID=us-east-2_user-pool-id
 VITE_AUTH_USER_POOL_WEB_CLIENT_ID=user-pool-web-client-id
 VITE_AUTH_COOKIE_STORAGE_DOMAIN=localhost
-
 ```
 
 > Replace the values with your own. I've left in some fake ones as an example.
