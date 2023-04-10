@@ -3,6 +3,7 @@
 This project is an example of how to set up biometric login for web-based apps ([WebAuthn](https://webauthn.io/)) using [Amazon Cognito](https://aws.amazon.com/cognito/) as the identity provider. This project accomplishes this by leaning on [AWS Cognito custom authentication challenges](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-challenge.html) and the [SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn) library.
 
 For more information on how this works, here are some references:
+
 - [https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/](https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/)
 - [Getting Started with WebAuthn with Nick Steele](https://youtu.be/yccBhpdJjJc)
 
@@ -18,6 +19,8 @@ The project uses the following libraries for handling the biometric login flow:
 - [https://github.com/MasterKale/SimpleWebAuthn](https://github.com/MasterKale/SimpleWebAuthn)
 - [https://github.com/feross/buffer](https://github.com/feross/buffer)
 - [https://github.com/Hexagon/base64](https://github.com/Hexagon/base64)
+
+The during the authentication process on the frontend, the SimpleWebAuthn library requires some methods that are present on the Node.js Buffer sub class. These methods are not availble in the browser natively, and must be added via the `buffer` js library. This is being imported and initialized in the `index.html` file in the `/frontend` directory.
 
 ## Running the project
 
