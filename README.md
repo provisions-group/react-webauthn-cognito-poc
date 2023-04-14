@@ -6,6 +6,8 @@ For more information on how this works, here are some references:
 
 - [https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/](https://aws.amazon.com/blogs/security/how-to-implement-password-less-authentication-with-amazon-cognito-and-webauthn/)
 - [Getting Started with WebAuthn with Nick Steele](https://youtu.be/yccBhpdJjJc)
+- [Good Q & A thread](https://groups.google.com/a/fidoalliance.org/g/fido-dev/c/RsgEnfeDqdU)
+- [Yubico's WebAuthn Guide](https://developers.yubico.com/WebAuthn/WebAuthn_Developer_Guide/)
 
 This project takes inspiration from the following projects:
 
